@@ -6,13 +6,9 @@ google
 	stdout := outPipe writer.
 	process := UnixProcess forkJob: '/usr/bin/node' arguments: {'js/run.js'} environment: nil descriptors: {nil. stdout. nil}.
 
-	reader := outPipe reader asBufferedAsyncFileReadStream. "asMMBufferedStream."
-	reader setBlocking.
-	
-	"Does not have effect on BufferedAsyncFileReadStreams. We need to change the readBuffer directly instead.
-	When we don't change the readBuffer, the call to 'reader uint32' fails, because the underlying collection returns characters."
-	reader binary. 
-	reader readBuffer: (ReadWriteStream with: ByteArray new).
+	reader := outPipe reader asMMBufferedStream.
+	reader setBlocking;
+		binary.
 
 	m := ImageMorph new.
 	m openInHand.
@@ -24,8 +20,8 @@ google
 			Transcript show: len.
 			Transcript cr.
 			png := reader next: len.
-			m image: (Form fromBinaryStream: png readStream).
+			m image: (Form fromBinaryStream: png asByteArray readStream).
 		] ifFalse: [
-		"This usually happens when the readBuffer of the BufferedAsyncFileReadStreams overflows."
+		"This usually happens when the readBuffer of the stream overflows."
 		Transcript show: 'ERROR'.
 	]]
