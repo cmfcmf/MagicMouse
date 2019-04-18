@@ -55,7 +55,12 @@ const wait = util.promisify(setTimeout);
     }
   });
 
-  for (let i = 0; i < 100; i++) {
+  process.on('SIGTERM', async () => {
+    await browser.close();
+    process.exit();
+  });
+
+  while(true) {
     const screenshot = await page.screenshot({});
     process.stdout.write("i");
     const buf = new Buffer(4);
@@ -65,5 +70,4 @@ const wait = util.promisify(setTimeout);
     await wait(20);
   }
 
-  await browser.close();
 })();
