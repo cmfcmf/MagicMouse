@@ -17,7 +17,6 @@ connect
 		setBlocking;
 		binary.
 	
-	viewportSize := 640 @ 480.
 	running := true.
 	[
 		 [
