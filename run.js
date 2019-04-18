@@ -1,8 +1,7 @@
 const puppeteer = require('puppeteer');
-const util = require('util');
+const util = require("util");
 
 const wait = util.promisify(setTimeout);
-
 
 (async () => {
   const browser = await puppeteer.launch();
