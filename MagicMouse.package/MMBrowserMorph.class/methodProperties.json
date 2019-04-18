@@ -1,14 +1,15 @@
 {
 	"class" : {
-		"eventTypeCode:" : "T 4/18/2019 21:23" },
+		"eventTypeCode:" : "cf 4/18/2019 22:45" },
 	"instance" : {
 		"connect" : "T 4/18/2019 21:20",
-		"delete" : "T 4/18/2019 20:00",
+		"delete" : "cf 4/18/2019 22:10",
 		"extent:" : "T 4/18/2019 21:24",
+		"handlesKeyboard:" : "cf 4/18/2019 22:38",
 		"handlesMouseDown:" : "T 4/18/2019 20:02",
 		"handlesMouseMove:" : "T 4/18/2019 20:02",
 		"initialize" : "T 4/18/2019 21:20",
-		"keyStroke:" : "T 4/18/2019 19:46",
+		"keyStroke:" : "cf 4/18/2019 22:55",
 		"mouseDown:" : "T 4/18/2019 21:22",
 		"mouseMove:" : "T 4/18/2019 20:53",
 		"mouseUp:" : "T 4/18/2019 20:19",
