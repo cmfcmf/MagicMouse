@@ -7,5 +7,5 @@ mouseDown: anEvent
 		send: #mouseMove withDouble: pos x andDouble: pos y;
 		send: #mouseDown.
 	
-	self hasKeyboard ifTrue: [^ self].
+	self activeHand keyboardFocus == self ifTrue: [^ self].
 	self activeHand newKeyboardFocus: self
