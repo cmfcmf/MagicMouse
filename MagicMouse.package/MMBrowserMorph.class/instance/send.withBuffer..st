@@ -1,4 +1,8 @@
-as yet unclassified
+event sending
 send: anEventType withBuffer: aBuffer
 
-	processWriter nextPutAll: 1
+	processWriter
+		nextPut: $e asciiValue;
+		nextPut: (self class eventTypeCode: anEventType);
+		uint32: aBuffer size;
+		nextPutAll: aBuffer

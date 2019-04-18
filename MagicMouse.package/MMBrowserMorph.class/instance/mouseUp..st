@@ -1,8 +1,8 @@
-as yet unclassified
+events
 mouseUp: anEvent
 
 	| pos |
 	pos := anEvent position - self position.
 	self
-		send: #move withDouble: pos x andDouble: pos y;
-		send: #up
+		send: #mouseMove withDouble: pos x andDouble: pos y;
+		send: #mouseUp

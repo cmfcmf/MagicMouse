@@ -1,4 +1,4 @@
-as yet unclassified
+events
 handlesMouseMove: anEvent
 
 	^ true

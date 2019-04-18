@@ -8,7 +8,7 @@ connect
 	stdin := inPipe reader.
 	stdout := outPipe writer.
 	
-	processWriter := inPipe writer binary.
+	processWriter := inPipe writer setBlocking; binary.
 	
 	process := UnixProcess forkJob: '/usr/bin/node' arguments: {'run.js'} environment: nil descriptors: {stdin. stdout. nil}.
 	

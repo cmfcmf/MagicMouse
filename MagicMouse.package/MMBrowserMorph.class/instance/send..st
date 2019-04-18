@@ -1,2 +1,4 @@
-as yet unclassified
+event sending
 send: anEventType
+
+	self send: anEventType withBuffer: #()
