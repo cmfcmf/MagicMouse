@@ -4,7 +4,7 @@ google
 	Transcript clear.
 	outPipe := OSPipe nonBlockingPipe.
 	stdout := outPipe writer.
-	process := UnixProcess forkJob: '/usr/bin/node' arguments: {'js/run.js'} environment: nil descriptors: {nil. stdout. nil}.
+	process := UnixProcess forkJob: '/usr/bin/node' arguments: {'run.js'} environment: nil descriptors: {nil. stdout. nil}.
 
 	reader := outPipe reader asMMBufferedStream.
 	reader setBlocking;
