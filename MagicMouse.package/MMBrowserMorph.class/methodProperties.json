@@ -2,14 +2,16 @@
 	"class" : {
 		"eventTypeCode:" : "T 4/18/2019 20:09" },
 	"instance" : {
-		"connect" : "T 4/18/2019 20:45",
+		"connect" : "T 4/18/2019 21:15",
 		"delete" : "T 4/18/2019 20:00",
+		"extent:" : "T 4/18/2019 21:14",
 		"handlesMouseDown:" : "T 4/18/2019 20:02",
 		"handlesMouseMove:" : "T 4/18/2019 20:02",
 		"keyStroke:" : "T 4/18/2019 19:46",
-		"mouseDown:" : "T 4/18/2019 20:09",
+		"mouseDown:" : "T 4/18/2019 21:17",
 		"mouseMove:" : "T 4/18/2019 20:53",
 		"mouseUp:" : "T 4/18/2019 20:19",
+		"preferredExtent" : "T 4/18/2019 21:14",
 		"send:" : "T 4/18/2019 20:14",
 		"send:withBuffer:" : "T 4/18/2019 21:08",
 		"send:withDouble:andDouble:" : "T 4/18/2019 21:04",

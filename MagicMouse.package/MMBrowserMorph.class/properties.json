@@ -8,7 +8,8 @@
 	"instvars" : [
 		"process",
 		"running",
-		"processWriter" ],
+		"processWriter",
+		"viewportSize" ],
 	"name" : "MMBrowserMorph",
 	"pools" : [
 		 ],
