@@ -7,6 +7,7 @@ const wait = util.promisify(setTimeout);
 (async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
+  await page.setViewport({width: 640, height: 480});
   await page.goto('https://google.com');
 
   console.error('hello');
@@ -18,6 +19,7 @@ const wait = util.promisify(setTimeout);
       const command = String.fromCharCode(currentStdinBuffer.readUInt8(0));
       const size = currentStdinBuffer.readUInt32BE(1);
       console.error('Received command', command, currentStdinBuffer.length, size);
+      let x, y;
       switch (command) {
         case 'e':
           // TODO check read boundaries for each event type
@@ -31,8 +33,8 @@ const wait = util.promisify(setTimeout);
               page.mouse.down();
               break;
             case 2:
-              const x = currentStdinBuffer.readUInt32LE(6);
-              const y = currentStdinBuffer.readUInt32LE(10);
+              x = currentStdinBuffer.readUInt32LE(6);
+              y = currentStdinBuffer.readUInt32LE(10);
               console.error('Moving to', x, y);
               page.mouse.move(x, y);
               break;
@@ -41,6 +43,11 @@ const wait = util.promisify(setTimeout);
               break;
             case 4:
               // page.keyboard.up();
+              break;
+            case 5:
+              x = currentStdinBuffer.readUInt32LE(6);
+              y = currentStdinBuffer.readUInt32LE(10);
+              page.setViewport({width: x, height: y});
               break;
           }
       }
