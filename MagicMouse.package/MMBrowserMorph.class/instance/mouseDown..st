@@ -1,10 +1,8 @@
 events
 mouseDown: anEvent
 
-	| pos |
-	pos := anEvent position - self position.
 	self
-		send: #mouseMove withDouble: pos x andDouble: pos y;
+		send: #mouseMove withPoint: anEvent position - self position;
 		send: #mouseDown.
 	
 	self activeHand keyboardFocus == self ifTrue: [^ self].
