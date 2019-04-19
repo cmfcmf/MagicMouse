@@ -2,7 +2,6 @@ as yet unclassified
 connect
 
 	| stdout outPipe command reader inPipe stdin |
-	Transcript clear.
 	outPipe := OSPipe nonBlockingPipe.
 	inPipe := OSPipe blockingPipe.
 	stdin := inPipe reader.
@@ -16,11 +15,13 @@ connect
 	reader
 		setBlocking;
 		binary.
-	
-	running := true.
-	[
+
+	imageUpdaterProcess := [
 		 [
-			command := reader next.
-			command asCharacter = $i ifTrue: [self updateImage: reader] ifFalse: [self error: 'stream overflow']
-		] doWhileTrue: [running]
+			command := reader next asCharacter.
+			command = $i ifTrue: [ | format |
+				format := reader next asCharacter.
+				self updateImage: reader format: format
+			] ifFalse: [self error: 'stream overflow']
+		] repeat
 	] fork

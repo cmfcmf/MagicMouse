@@ -1,15 +1,16 @@
 {
 	"class" : {
-		"eventTypeCode:" : "cf 4/18/2019 22:45" },
+		"eventTypeCode:" : "cf 4/18/2019 22:45",
+		"open" : "cf 4/19/2019 08:26" },
 	"instance" : {
-		"connect" : "T 4/18/2019 21:20",
-		"delete" : "cf 4/18/2019 22:10",
+		"connect" : "cf 4/19/2019 08:50",
+		"delete" : "cf 4/19/2019 08:45",
 		"extent:" : "T 4/18/2019 21:24",
 		"handlesKeyboard:" : "cf 4/18/2019 22:38",
 		"handlesMouseDown:" : "T 4/18/2019 20:02",
 		"handlesMouseMove:" : "T 4/18/2019 20:02",
 		"initialize" : "T 4/18/2019 21:20",
-		"keyStroke:" : "cf 4/18/2019 22:55",
+		"keyStroke:" : "cf 4/19/2019 00:42",
 		"mouseDown:" : "T 4/18/2019 21:22",
 		"mouseMove:" : "T 4/18/2019 20:53",
 		"mouseUp:" : "T 4/18/2019 20:19",
@@ -18,4 +19,4 @@
 		"send:withBuffer:" : "T 4/18/2019 21:08",
 		"send:withDouble:andDouble:" : "T 4/18/2019 21:04",
 		"send:withString:" : "T 4/18/2019 20:14",
-		"updateImage:" : "cf 4/18/2019 21:00" } }
+		"updateImage:format:" : "cf 4/19/2019 08:50" } }

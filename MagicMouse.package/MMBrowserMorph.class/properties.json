@@ -7,9 +7,9 @@
 	"commentStamp" : "",
 	"instvars" : [
 		"process",
-		"running",
 		"processWriter",
-		"viewportSize" ],
+		"viewportSize",
+		"imageUpdaterProcess" ],
 	"name" : "MMBrowserMorph",
 	"pools" : [
 		 ],

@@ -1,5 +1,4 @@
 as yet unclassified
 maxReadBufferSize
-	"Replace readBuffer when position exceeds this."
-
+	self flag: #fixme. "This buffer will still overflow."
 	^ 400000000
