@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const util = require("util");
 const SmartBuffer = require('smart-buffer').SmartBuffer;
 const getPixels = require("get-pixels")
+const findChrome = require('chrome-finder');
 
 const wait = util.promisify(setTimeout);
 
@@ -19,7 +20,9 @@ const IMAGE_FORMAT = "raw"; // "raw" or "png"
     ],
     // I read somewhere that this makes it faster.
     // args: ["--proxy-server='direct://'", '--proxy-bypass-list=*'],
-    executablePath: "/usr/bin/chromium-browser"
+
+    // The screencast API requires a newer version of Chrome than the one bundled with puppeteer.
+    executablePath: findChrome()
   });
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36');

@@ -3,6 +3,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "chrome-finder": "^1.0.5",
     "get-pixels": "^3.3.2",
     "patch-package": "^6.1.2",
     "postinstall-postinstall": "^2.0.0",
