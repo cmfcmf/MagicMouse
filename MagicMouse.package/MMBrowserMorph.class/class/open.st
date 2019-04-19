@@ -3,5 +3,5 @@ open
 	| instance |
 	instance := self new.
 	instance connect.
-	instance openInWorld.
+	instance openInWindowLabeled: 'Magic Mouse Browser'.
 	^ instance
