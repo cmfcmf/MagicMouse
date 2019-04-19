@@ -1,6 +1,6 @@
 {
 	"class" : {
-		"eventTypeCode:" : "cf 4/18/2019 22:45",
+		"eventTypeCode:" : "TB 4/19/2019 09:50",
 		"open" : "TB 4/19/2019 09:32" },
 	"instance" : {
 		"connect" : "cf 4/19/2019 08:50",
@@ -9,14 +9,17 @@
 		"handlesKeyboard:" : "cf 4/18/2019 22:38",
 		"handlesMouseDown:" : "T 4/18/2019 20:02",
 		"handlesMouseMove:" : "T 4/18/2019 20:02",
+		"handlesMouseWheel:" : "TB 4/19/2019 09:54",
 		"initialize" : "T 4/18/2019 21:20",
 		"keyStroke:" : "cf 4/19/2019 00:42",
 		"mouseDown:" : "TB 4/19/2019 09:27",
 		"mouseMove:" : "TB 4/19/2019 09:46",
 		"mouseUp:" : "TB 4/19/2019 09:27",
+		"mouseWheel:" : "TB 4/19/2019 09:55",
 		"preferredExtent" : "T 4/18/2019 21:14",
 		"send:" : "T 4/18/2019 20:14",
 		"send:withBuffer:" : "T 4/18/2019 21:08",
+		"send:withNumber:" : "TB 4/19/2019 09:50",
 		"send:withNumber:andNumber:" : "TB 4/19/2019 09:26",
 		"send:withPoint:" : "TB 4/19/2019 09:27",
 		"send:withString:" : "T 4/18/2019 20:14",
