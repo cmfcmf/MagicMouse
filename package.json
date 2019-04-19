@@ -1,5 +1,12 @@
 {
+  "scripts": {
+    "postinstall": "patch-package"
+  },
   "dependencies": {
-    "puppeteer": "^1.14.0"
+    "get-pixels": "^3.3.2",
+    "patch-package": "^6.1.2",
+    "postinstall-postinstall": "^2.0.0",
+    "puppeteer": "^1.14.0",
+    "smart-buffer": "^4.0.2"
   }
 }
