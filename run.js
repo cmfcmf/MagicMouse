@@ -102,7 +102,7 @@ const IMAGE_FORMAT = "raw"; // "raw" or "png"
   });
 
   process.on('SIGTERM', async () => {
-    await page.stopScreencast();
+    // await page.stopScreencast();
     await browser.close();
     process.exit();
   });
@@ -138,6 +138,6 @@ const IMAGE_FORMAT = "raw"; // "raw" or "png"
     console.error(Date.now() / 1000);
   });
 
-  await page.startScreencast({format: 'png', everyNthFrame: 10});
+  await page.startScreencast({format: 'png', everyNthFrame: 1});
   console.error("Recording screencast...");
 })();
