@@ -93,6 +93,11 @@ const IMAGE_FORMAT = "raw"; // "raw" or "png"
               y = currentStdinBuffer.readUInt32LE();
               page.setViewport({width: x, height: y});
               break;
+            case 5:
+              y = currentStdinBuffer.readUInt32LE();
+              console.error('scroll', y);
+              page.evaluate((y) => window.scrollBy(0, y == 0 ? -20 : 20), y);
+              break;
           }
           break;
       }
