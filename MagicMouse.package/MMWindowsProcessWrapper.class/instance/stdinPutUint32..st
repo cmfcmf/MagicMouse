@@ -4,4 +4,4 @@ stdinPutUint32: anInteger
 		(anInteger digitAt: 4). 
 		(anInteger digitAt: 3). 
 		(anInteger digitAt: 2). 
-		(anInteger digitAt: 1)} asByteArray
+		(anInteger digitAt: 1)}

@@ -1,3 +1,3 @@
 as yet unclassified
-stdinPutBuffer: aByteArray
-	aByteArray ifNotEmpty: [self process writeToStdin: aByteArray]
+stdinPutBuffer: aBuffer
+	aBuffer ifNotEmpty: [self process writeToStdin: aBuffer asByteArray]
