@@ -3,15 +3,12 @@
 	"classinstvars" : [
 		 ],
 	"classvars" : [
-		"GitRepositoryPath" ],
+		 ],
 	"commentStamp" : "",
 	"instvars" : [
-		"process",
-		"viewportSize",
-		"imageUpdaterProcess",
-		"lastUpdate" ],
-	"name" : "MMBrowserMorph",
+		 ],
+	"name" : "MMWindowsProcessWrapper",
 	"pools" : [
 		 ],
-	"super" : "ImageMorph",
+	"super" : "MMProcessWrapper",
 	"type" : "normal" }

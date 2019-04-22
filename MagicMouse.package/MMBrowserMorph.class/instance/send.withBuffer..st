@@ -1,9 +1,8 @@
 event sending
 send: anEventType withBuffer: aBuffer
 
-	processWriter
-		nextPut: $e asciiValue;
-		uint32: aBuffer size;
-		nextPut: (self class eventTypeCode: anEventType);
-		nextPutAll: aBuffer;
-		flush
+	process
+		stdinPutUint32: (aBuffer size + 2);
+		stdinPutChar: $e;
+		stdinPutUint8: (self class eventTypeCode: anEventType);
+		stdinPutBuffer: aBuffer asByteArray

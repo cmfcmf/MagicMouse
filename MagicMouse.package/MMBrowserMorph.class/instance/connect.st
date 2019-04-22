@@ -1,27 +1,22 @@
 as yet unclassified
 connect
-
-	| stdout outPipe command reader inPipe stdin |
-	outPipe := OSPipe nonBlockingPipe.
-	inPipe := OSPipe blockingPipe.
-	stdin := inPipe reader.
-	stdout := outPipe writer.
+	| path |
+	self assertNodeScriptExists.
+	path := self class gitRepositoryPath, '/run.js'.
 	
-	processWriter := inPipe writer binary.
-	
-	process := UnixProcess forkJob: '/usr/bin/node' arguments: {'run.js'} environment: nil descriptors: {stdin. stdout. nil}.
-	
-	reader := outPipe reader asMMBufferedStream.
-	reader
-		setBlocking;
-		binary.
+	process := MMProcessWrapper newForOS.
+	"process enableDebug."
+	process startNodeScript: path.
 
 	imageUpdaterProcess := [
-		 [
-			command := reader next asCharacter.
-			command = $i ifTrue: [ | format |
-				format := reader next asCharacter.
-				self updateImage: reader format: format
-			] ifFalse: [self error: 'stream overflow']
+		 [ | length command payload |
+			length := process stdoutNextUint32.
+			payload := process stdoutNextBuffer: length.
+			command := payload unsignedCharAt: 1.
+			command = $i ifTrue: [
+				(lastUpdate isNil or: [(TimeStamp now - lastUpdate) asMilliSeconds > 200]) ifTrue: [
+					self updateImage: payload. 
+					lastUpdate := TimeStamp now
+			]]  ifFalse: [self error: 'stream overflow'].
 		] repeat
 	] fork
