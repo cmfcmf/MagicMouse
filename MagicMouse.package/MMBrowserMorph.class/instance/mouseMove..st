@@ -1,4 +1,4 @@
 events
 mouseMove: anEvent
 
-	self send: #mouseMove withPoint: anEvent position - self position
+	self sendEvent: #mouseMove withPoint: anEvent position - self position

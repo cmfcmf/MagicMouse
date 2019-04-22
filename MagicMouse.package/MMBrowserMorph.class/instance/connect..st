@@ -1,12 +1,13 @@
 as yet unclassified
-connect
+connect: aUrl
 	| path |
 	self assertNodeScriptExists.
-	path := self class gitRepositoryPath, '/run.js'.
+	path := self class gitRepositoryPath, FileDirectory slash, 'run.js'.
 	
 	process := MMProcessWrapper newForOS.
-	"process enableDebug."
-	process startNodeScript: path.
+	process enableDebug.
+	self flag: #fixme. "Properly escape arguments"
+	process startNodeScript: path arguments: {'"', aUrl, '"'}.
 
 	imageUpdaterProcess := [
 		 [ | length command payload |

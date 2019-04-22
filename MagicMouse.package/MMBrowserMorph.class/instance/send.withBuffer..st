@@ -1,8 +1,7 @@
 event sending
-send: anEventType withBuffer: aBuffer
+send: aCommand withBuffer: aBuffer
 
 	process
-		stdinPutUint32: (aBuffer size + 2);
-		stdinPutChar: $e;
-		stdinPutUint8: (self class eventTypeCode: anEventType);
+		stdinPutUint32: (aBuffer size + 1);
+		stdinPutChar: aCommand;
 		stdinPutBuffer: aBuffer asByteArray

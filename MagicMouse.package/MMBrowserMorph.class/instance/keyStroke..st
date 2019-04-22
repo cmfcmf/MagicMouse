@@ -1,3 +1,3 @@
 events
 keyStroke: anEvent
-	self send: #keyPress withString: anEvent keyString
+	self sendEvent: #keyPress withString: anEvent keyString
