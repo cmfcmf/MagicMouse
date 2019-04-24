@@ -1,19 +1,19 @@
-diff --git a/node_modules/puppeteer/lib/Events.js b/node_modules/puppeteer/lib/Events.js
+diff --git a/node_modules/puppeteer-core/lib/Events.js b/node_modules/puppeteer-core/lib/Events.js
 index c994de5..fbc9d65 100644
---- a/node_modules/puppeteer/lib/Events.js
-+++ b/node_modules/puppeteer/lib/Events.js
+--- a/node_modules/puppeteer-core/lib/Events.js
++++ b/node_modules/puppeteer-core/lib/Events.js
 @@ -36,6 +36,7 @@ const Events = {
      Popup: 'popup',
      WorkerCreated: 'workercreated',
      WorkerDestroyed: 'workerdestroyed',
 +    ScreencastFrame: 'screencastframe'
    },
- 
+
    Browser: {
-diff --git a/node_modules/puppeteer/lib/Page.js b/node_modules/puppeteer/lib/Page.js
+diff --git a/node_modules/puppeteer-core/lib/Page.js b/node_modules/puppeteer-core/lib/Page.js
 index 2f9510a..774fb8e 100644
---- a/node_modules/puppeteer/lib/Page.js
-+++ b/node_modules/puppeteer/lib/Page.js
+--- a/node_modules/puppeteer-core/lib/Page.js
++++ b/node_modules/puppeteer-core/lib/Page.js
 @@ -140,6 +140,7 @@ class Page extends EventEmitter {
      client.on('Inspector.targetCrashed', event => this._onTargetCrashed());
      client.on('Performance.metrics', event => this._emitMetrics(event));
@@ -25,7 +25,7 @@ index 2f9510a..774fb8e 100644
 @@ -825,6 +826,54 @@ class Page extends EventEmitter {
      await this._client.send('Network.setCacheDisabled', {cacheDisabled: !enabled});
    }
- 
+
 +  /**
 +   * @param {!Object=} options
 +   * @return {!Promise}
