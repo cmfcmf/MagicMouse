@@ -2,7 +2,8 @@ as yet unclassified
 startCommand: command withArguments: arguments
 	self process: ProcessWrapper new.
 	self process useStdout; useStderr.
-	self process startWithShellCommand: command, ' ', (arguments joinSeparatedBy: ' '). 
+	self flag: #fixme. "Properly escape arguments"
+	self process startWithShellCommand: command, ' ', ((arguments collect: [:arg | '"', arg, '"']) joinSeparatedBy: ' '). 
 	self process stdoutStream binary.
 	self process stderrStream ascii.
 	

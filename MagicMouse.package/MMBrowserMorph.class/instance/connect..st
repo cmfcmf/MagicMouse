@@ -5,9 +5,8 @@ connect: aUrl
 	path := self class gitRepositoryPath, FileDirectory slash, 'run.js'.
 	
 	process := MMProcessWrapper newForOS.
-	process enableDebug.
-	self flag: #fixme. "Properly escape arguments"
-	process startNodeScript: path arguments: {'"', aUrl, '"'}.
+	"process enableDebug."
+	process startNodeScript: path arguments: {aUrl}.
 
 	imageUpdaterProcess := [
 		 [ | length command payload |
