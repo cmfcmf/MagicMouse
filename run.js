@@ -71,10 +71,10 @@ const run = async () => {
     sendCommand(buf.toBuffer());
 
     await page.screencastFrameAck(frame.sessionId);
-    // console.error(`Sent frame at ${Date.now() / 1000}`);
+    console.error(`Sent frame at ${Date.now() / 1000}`);
   });
 
-  await page.startScreencast({format: 'png', everyNthFrame: 600});
+  await page.startScreencast({format: 'png', everyNthFrame: 1});
   console.error("Recording screencast...");
 
   const reader = awaitifyStream.createReader(process.stdin);
@@ -153,6 +153,54 @@ const run = async () => {
             const y = payload.readUInt32LE();
             console.error('scroll', y);
             page.evaluate((y) => window.scrollBy(0, y == 0 ? -20 : 20), y);
+            break;
+          } case 6: {
+            // These are relative to the visible part of the page, not the top left corner
+            const x = payload.readUInt32LE();
+            const y = payload.readUInt32LE();
+            console.error(`Halo event at ${x},${y}`);
+            const images = await page.evaluate((x, y) =>
+              Promise.all(document
+                .elementsFromPoint(x, y)
+                .filter(element => element.localName === 'img')
+                .map(async img => {
+                  // Danger! These coordinates might be negative if the element is part way outside the visible screen area
+                  const rect = img.getBoundingClientRect();
+                  const w = img.width;
+                  const h = img.height;
+
+                  const canvas = document.createElement("canvas");
+                  canvas.width = w;
+                  canvas.height = h;
+                  const ctx = canvas.getContext("2d");
+                  ctx.drawImage(img, 0, 0, w, h);
+                  const data = canvas.toDataURL("image/png").split(",")[1];
+
+                  const offsetX = parseInt(window.getComputedStyle(img).paddingLeft, 10);
+                  const offsetY = parseInt(window.getComputedStyle(img).paddingTop, 10);
+
+                  return {
+                    x: rect.x + offsetX,
+                    y: rect.y + offsetY,
+                    w,
+                    h,
+                    data
+                  };
+                })), x, y);
+
+            if (images.length === 0) {
+              break;
+            }
+            const image = images[0];
+
+            const buf = new SmartBuffer();
+            buf.writeString("hi"); // halo image
+            buf.writeInt32LE(image.x);
+            buf.writeInt32LE(image.y);
+            buf.writeInt32LE(image.w);
+            buf.writeInt32LE(image.h);
+            buf.writeBuffer(Buffer.from(image.data, 'base64'));
+            sendCommand(buf.toBuffer());
             break;
           }
         }
