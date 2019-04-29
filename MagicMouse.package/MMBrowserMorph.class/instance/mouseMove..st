@@ -1,4 +1,5 @@
 events
 mouseMove: anEvent
-
-	self sendEvent: #mouseMove withPoint: anEvent position - self position
+	| position |
+	position := anEvent position - self position.
+	position >= (0@0) ifTrue: [self sendEvent: #mouseMove withPoint: position]

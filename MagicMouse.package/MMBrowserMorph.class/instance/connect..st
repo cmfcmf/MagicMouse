@@ -13,10 +13,12 @@ connect: aUrl
 			length := process stdoutNextUint32.
 			payload := process stdoutNextBuffer: length.
 			command := payload unsignedCharAt: 1.
-			command = $i ifTrue: [
-				(lastUpdate isNil or: [(TimeStamp now - lastUpdate) asMilliSeconds > 200]) ifTrue: [
+			command caseOf: {
+				[$i] -> [(lastUpdate isNil or: [(TimeStamp now - lastUpdate) asMilliSeconds > 200]) ifTrue: [
 					self updateImage: payload. 
 					lastUpdate := TimeStamp now
-			]]  ifFalse: [self error: 'stream overflow'].
+				]].
+				[$h] -> [self handleHaloData: payload]
+			}
 		] repeat
 	] fork

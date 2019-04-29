@@ -8,4 +8,5 @@ eventTypeCode: aType
 		#keyPress -> 3.
 		#resize -> 4.
 		#mouseWheel -> 5.
+		#halo -> 6.
 	}) at:  aType ifAbsent: [self error: 'unknown event type']
