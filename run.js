@@ -3,6 +3,7 @@ const SmartBuffer = require('smart-buffer').SmartBuffer;
 const getPixels = require("get-pixels")
 const findChrome = require('chrome-finder');
 const awaitifyStream = require('awaitify-stream');
+const { getImages } = require("./getImages");
 
 const IMAGE_FORMAT = "png"; // "raw" or "png"
 
@@ -159,39 +160,12 @@ const run = async () => {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
             console.error(`Halo event at ${x},${y}`);
-            const images = await page.evaluate((x, y) =>
-              Promise.all(document
-                .elementsFromPoint(x, y)
-                .filter(element => element.localName === 'img')
-                .map(async img => {
-                  // Danger! These coordinates might be negative if the element is part way outside the visible screen area
-                  const rect = img.getBoundingClientRect();
-                  const w = img.width;
-                  const h = img.height;
-
-                  const canvas = document.createElement("canvas");
-                  canvas.width = w;
-                  canvas.height = h;
-                  const ctx = canvas.getContext("2d");
-                  ctx.drawImage(img, 0, 0, w, h);
-                  const data = canvas.toDataURL("image/png").split(",")[1];
-
-                  const offsetX = parseInt(window.getComputedStyle(img).paddingLeft, 10);
-                  const offsetY = parseInt(window.getComputedStyle(img).paddingTop, 10);
-
-                  return {
-                    x: rect.x + offsetX,
-                    y: rect.y + offsetY,
-                    w,
-                    h,
-                    data
-                  };
-                })), x, y);
-
+            const images = await page.evaluate(getImages, x, y);
             if (images.length === 0) {
               break;
             }
             const image = images[0];
+            console.error({x: image.x, y: image.y, w: image.w, h: image.h});
 
             const buf = new SmartBuffer();
             buf.writeString("hi"); // halo image
