@@ -1,4 +1,4 @@
-as yet unclassified
+geometry
 extent: aPoint
 
 	viewportSize ~= aPoint ifTrue: [self sendEvent: #resize withPoint: aPoint].
