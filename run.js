@@ -39,11 +39,23 @@ const run = async () => {
   });
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36');
-  await page.setViewport({width: 640, height: 480});
+  await page.setViewport({width: 590, height: 338});
 
   // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
   console.error(`Navigating to ${url}`);
   await page.goto(url);
+
+  page.on('framenavigated',  (frame) => {
+    if (frame.parentFrame) {
+      return;
+    }
+    const url = page.url();
+    console.error(`Navigating to ${url}`);
+    const buf = new SmartBuffer();
+    buf.writeString("l");
+    buf.writeString(url);
+    sendCommand(buf.toBuffer());
+  })
 
   process.on('SIGTERM', terminate);
 
