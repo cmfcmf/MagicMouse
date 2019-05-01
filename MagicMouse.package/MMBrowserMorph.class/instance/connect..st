@@ -15,7 +15,8 @@ connect: aUrl
 			command := payload unsignedCharAt: 1.
 			command caseOf: {
 				[$i] -> [self updateImage: payload].
-				[$h] -> [self handleHaloData: payload]
+				[$h] -> [self handleHaloData: payload].
+				[$l] -> [self locationUpdated: payload]
 			}
 		] repeat
 	] fork

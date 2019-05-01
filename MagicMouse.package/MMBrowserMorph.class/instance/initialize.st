@@ -1,7 +1,7 @@
 initialization
 initialize
 
-	viewportSize := 640 @ 480.
+	viewportSize := 590@338.
 	super initialize.
 	self clipSubmorphs: true.
 	self color: Color white.
