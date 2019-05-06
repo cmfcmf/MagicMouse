@@ -45,11 +45,12 @@ const run = async () => {
   console.error(`Navigating to ${url}`);
   await page.goto(url);
 
-  page.on('framenavigated',  (frame) => {
-    if (frame.parentFrame) {
+  page.on('framenavigated', (frame) => {
+    const url = page.url();
+    if (frame.parentFrame()) {
+      console.error(`IGNORE: sub-frame navigating to ${url}`);
       return;
     }
-    const url = page.url();
     console.error(`Navigating to ${url}`);
     const buf = new SmartBuffer();
     buf.writeString("l");
