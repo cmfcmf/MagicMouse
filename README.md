@@ -2,16 +2,11 @@
 
 A Chrome browser... in Squeak!
 
-## Dependencies
+## Install
 
 ```
-MCMcmUpdater updateFromRepository: 'http://www.squeaksource.com/OSProcess'.
-
-(Installer repository: 'http://source.squeak.org/FFI')
-    install: 'FFI-Pools';
-    install: 'FFI-Kernel'.
-
-Installer monticello http: 'http://www.squeaksource.com';
-     project: 'ProcessWrapper';
-     install: 'ProcessWrapper-Core'.
+Metacello new
+	baseline: 'MagicMouse';
+	repository: 'github://cmfcmf/MagicMouse:master';
+	load.
 ```
