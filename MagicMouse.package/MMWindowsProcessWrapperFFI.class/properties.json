@@ -6,8 +6,14 @@
 		 ],
 	"commentStamp" : "",
 	"instvars" : [
-		 ],
-	"name" : "MMWindowsProcessWrapper",
+		"stdinRead",
+		"stdinWrite",
+		"stdoutRead",
+		"stdoutWrite",
+		"stderrRead",
+		"stderrWrite",
+		"processInformation" ],
+	"name" : "MMWindowsProcessWrapperFFI",
 	"pools" : [
 		 ],
 	"super" : "MMProcessWrapper",
