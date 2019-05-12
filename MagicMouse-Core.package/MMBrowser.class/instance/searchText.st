@@ -1,0 +1,4 @@
+accessing
+searchText
+
+	^ searchText

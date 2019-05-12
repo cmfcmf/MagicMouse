@@ -1,0 +1,4 @@
+accessing
+locationText
+
+	^ locationText

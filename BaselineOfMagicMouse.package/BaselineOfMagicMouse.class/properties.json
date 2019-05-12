@@ -1,0 +1,14 @@
+{
+	"category" : "BaselineOfMagicMouse",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		 ],
+	"name" : "BaselineOfMagicMouse",
+	"pools" : [
+		 ],
+	"super" : "BaselineOf",
+	"type" : "normal" }

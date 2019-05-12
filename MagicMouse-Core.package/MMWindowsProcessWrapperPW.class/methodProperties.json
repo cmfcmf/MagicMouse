@@ -1,0 +1,12 @@
+{
+	"class" : {
+		 },
+	"instance" : {
+		"startCommand:withArguments:" : "cf 4/24/2019 09:56",
+		"stdinPutBuffer:" : "cf 4/22/2019 13:59",
+		"stdinPutUint32:" : "cf 4/22/2019 14:00",
+		"stdinPutUint8:" : "cf 4/22/2019 14:00",
+		"stdoutNextBuffer:" : "cf 4/22/2019 12:56",
+		"stdoutNextUint32" : "cf 4/22/2019 12:56",
+		"stdoutNextUint8" : "cf 4/22/2019 12:56",
+		"terminate" : "cf 5/1/2019 16:08" } }

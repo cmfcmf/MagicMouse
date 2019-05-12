@@ -1,0 +1,15 @@
+{
+	"category" : "MagicMouse-Core",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		 ],
+	"commentStamp" : "",
+	"instvars" : [
+		"process",
+		"debug" ],
+	"name" : "MMProcessWrapper",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

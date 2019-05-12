@@ -1,0 +1,16 @@
+{
+	"class" : {
+		 },
+	"instance" : {
+		"peek:" : "cf 5/12/2019 15:16",
+		"readBuffer:length:" : "cf 5/12/2019 14:35",
+		"startCommand:withArguments:" : "cf 5/12/2019 15:57",
+		"stderrNextBuffer:" : "cf 5/12/2019 14:36",
+		"stdinPutBuffer:" : "cf 5/12/2019 14:43",
+		"stdinPutUint32:" : "cf 5/12/2019 14:44",
+		"stdinPutUint8:" : "cf 5/12/2019 14:02",
+		"stdoutNextBuffer:" : "cf 5/12/2019 14:36",
+		"stdoutNextUint32" : "cf 5/12/2019 14:41",
+		"stdoutNextUint8" : "cf 5/12/2019 13:56",
+		"terminate" : "cf 5/12/2019 15:59",
+		"waitFor:at:" : "cf 5/12/2019 14:34" } }

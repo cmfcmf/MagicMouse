@@ -1,0 +1,17 @@
+{
+	"category" : "MagicMouse-Core",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		"DebugEnabled",
+		"GitRepositoryPath" ],
+	"commentStamp" : "",
+	"instvars" : [
+		"process",
+		"viewportSize",
+		"imageUpdaterProcess" ],
+	"name" : "MMBrowserMorph",
+	"pools" : [
+		 ],
+	"super" : "ImageMorph",
+	"type" : "normal" }
