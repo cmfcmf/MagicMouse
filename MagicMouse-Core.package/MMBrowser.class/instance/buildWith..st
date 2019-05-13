@@ -7,7 +7,7 @@ buildWith: aBuilder
 			model: self;
 			children: {
 				aBuilder pluggablePanelSpec new
-					spacing: 10;
+					wantsResizeHandles: true;
 					frame: (LayoutFrame fractions: (0@0 extent: 1@0));
 					children: {
 						aBuilder pluggableTextSpec new 
@@ -17,7 +17,7 @@ buildWith: aBuilder
 							getText: #locationText;
 							setText: #changeLocation:;
 							askBeforeDiscardingEdits: false;
-							frame: (LayoutFrame fractions: (0@0 extent: 0.8@0));
+							frame: (LayoutFrame fractions: (0@0 extent: 0.8@1));
 							yourself.
 						aBuilder pluggableTextSpec new 
 							model: self;
@@ -26,14 +26,14 @@ buildWith: aBuilder
 							getText: #searchText;
 							setText: #searchFor:;
 							askBeforeDiscardingEdits: false;
-							frame: (LayoutFrame fractions: (0.8@0 extent: 0.2@0));
+							frame: (LayoutFrame fractions: (0.8@0 extent: 0.2@1));
 							yourself.
 					};
 					yourself.
 				aBuilder pluggablePanelSpec new
 					model: self;
 					name: 'browserPanel';
-					frame: (LayoutFrame fractions: (0@0 extent: 1@1) offsets: ((0@30) extent: (0@ -30)));
+					frame: (LayoutFrame fractions: (0@0 extent: 1@1) offsets: ((0@25) extent: (0@ -25)));
 					children: #getBrowserMorph;
 					margin: 20;
 					yourself.

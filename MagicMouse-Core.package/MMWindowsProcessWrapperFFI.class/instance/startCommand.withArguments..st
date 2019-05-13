@@ -8,7 +8,7 @@ startCommand: command withArguments: arguments
 	stdinRead := pipe first.
 	stdinWrite := pipe second.
 	
-	pipe := CMFWinFFI makePipe: true.
+	pipe := CMFWinFFI makePipe: true size: 10000000.
 	stdoutRead := pipe first.
 	stdoutWrite := pipe second.
 	

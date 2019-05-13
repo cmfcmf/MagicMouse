@@ -6,4 +6,5 @@ initialize
 	self clipSubmorphs: true.
 	self color: Color white.
 	"Mark the image as opaque. Although we render PNGs, the browser should never send us an image of the webpage that includes transparency."
-	self isOpaque: true
+	self isOpaque: true.
+	self portalMorphs: Dictionary new
