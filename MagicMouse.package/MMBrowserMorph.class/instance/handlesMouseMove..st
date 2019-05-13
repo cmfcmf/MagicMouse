@@ -1,4 +1,0 @@
-events
-handlesMouseMove: anEvent
-
-	^ true
