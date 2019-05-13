@@ -1,4 +1,15 @@
-const getImages = (x, y) => {
+const getElements = (fn, ...args) => {
+  const ID_ATTRIBUTE = "data-magic-mouse-id";
+
+  const getIdOf = async element => {
+    let id = element.getAttribute(ID_ATTRIBUTE);
+    if (!id) {
+      id = await window.uuid();
+      element.setAttribute(ID_ATTRIBUTE, id);
+    }
+    return id;
+  };
+
   // Based on this Gist by @ciaranj
   // https://gist.github.com/ciaranj/7177fb342102e571db2784dc831f868b
   // which is based on this StackOverflow answer by Édouard Mercier:
@@ -100,70 +111,140 @@ const getImages = (x, y) => {
     return coords;
   };
 
-  return Promise.all(
+  // Convert an <img> element to a base64-encoded string.
+  const img2Base64 = img => {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL("image/png").split(",")[1];
+  };
+
+  const extractImg = async (img, includeData = true) => {
+    const rect = img.getBoundingClientRect();
+
+    const style = window.getComputedStyle(img);
+    const offsetX = parseInt(style.paddingLeft, 10);
+    const offsetY = parseInt(style.paddingTop, 10);
+
+    const w = img.width;
+    const h = img.height;
+
+    return {
+      id: await getIdOf(img),
+      type: "img",
+      x: rect.x + offsetX,
+      y: rect.y + offsetY,
+      w,
+      h,
+      data: includeData ? img2Base64(img) : null
+    };
+  };
+
+  const extractCanvas = async (canvas, includeData = true) => {
+    const rect = img.getBoundingClientRect();
+
+    const style = window.getComputedStyle(img);
+    const offsetX = parseInt(style.paddingLeft, 10);
+    const offsetY = parseInt(style.paddingTop, 10);
+
+    let x = rect.x + offsetX;
+    let y = rect.y + offsetY;
+    let w = rect.width;
+    let h = rect.height;
+
+    if (style.objectFit === "contain" && style.objectPosition === "50% 50%") {
+      const c = calculateContainsWindow(canvas);
+      x += c.destinationXPercentage * rect.width;
+      y += c.destinationYPercentage * rect.height;
+      w = c.destinationWidthPercentage * w;
+      h = c.destinationHeightPercentage * h;
+    }
+
+    return {
+      id: await getIdOf(canvas),
+      type: "canvas",
+      x,
+      y,
+      w,
+      h,
+      data: includeData ? canvas.toDataURL("image/png").split(",")[1] : null
+    };
+  };
+
+  const extractPre = async (element, includeData = true) => {
+    const viewport = {
+      w: document.documentElement.clientWidth,
+      h: document.documentElement.clientHeight
+    };
+
+    const rect = element.getBoundingClientRect();
+
+    let dw = 0;
+    if (rect.right > viewport.w) {
+      dw = rect.right - viewport.w;
+    }
+    let dh = 0;
+    if (rect.bottom > viewport.h) {
+      dh = rect.bottom - viewport.h;
+    }
+
+    const id = await getIdOf(element);
+
+    return {
+      id,
+      type: "pre",
+      x: rect.x,
+      y: rect.y,
+      w: rect.width - dw,
+      h: rect.height - dh,
+      data: includeData ? element.textContent : null
+    };
+  };
+
+  const extract = async (element, includeData = true) => {
+    if (element.tagName === "IMG") {
+      return extractImg(element, includeData);
+    } else if (element.tagName === "CANVAS") {
+      return extractCanvas(element, includeData);
+    } else if (element.tagName === "PRE") {
+      return extractPre(element, includeData);
+    }
+  };
+
+  const extractElements = (x, y) => {
+    return Promise.all(
+      document
+        .elementsFromPoint(x, y)
+        .filter(
+          element =>
+            element.tagName === "IMG" ||
+            element.tagName === "CANVAS" ||
+            element.tagName === "PRE"
+        )
+        .map(async element => extract(element))
+    );
+  };
+
+  const refreshInfo = () => {
+    const infos = [];
+
     document
-      .elementsFromPoint(x, y)
-      .filter(
-        element => element.tagName === "IMG" || element.tagName === "CANVAS"
-      )
-      .map(async imgOrCanvas => {
-        // Convert an <img> element to a base64-encoded string.
-        const img2Base64 = (img) => {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0);
-          return canvas.toDataURL("image/png").split(",")[1];
-        };
+      .querySelectorAll(`[${ID_ATTRIBUTE}]`)
+      .forEach(element => infos.push(extract(element, false)));
 
-        // Danger! These coordinates might be negative if the element is part way outside the visible screen area
-        const rect = imgOrCanvas.getBoundingClientRect();
-        const style = window.getComputedStyle(imgOrCanvas);
+    return Promise.all(infos);
+  };
 
-        const offsetX = parseInt(style.paddingLeft, 10);
-        const offsetY = parseInt(style.paddingTop, 10);
-
-        if (imgOrCanvas.tagName === "IMG") {
-          const img = imgOrCanvas;
-          const w = img.width;
-          const h = img.height;
-
-          const data = img2Base64(img);
-
-          return {
-            x: rect.x + offsetX,
-            y: rect.y + offsetY,
-            w,
-            h,
-            data
-          };
-        } else {
-          const canvas = imgOrCanvas;
-          const data = canvas.toDataURL("image/png").split(",")[1];
-
-          let x = rect.x + offsetX;
-          let y = rect.y + offsetY;
-          let w = rect.width;
-          let h = rect.height;
-
-          if (
-            style.objectFit === "contain" &&
-            style.objectPosition === "50% 50%"
-          ) {
-            const c = calculateContainsWindow(canvas);
-            x += c.destinationXPercentage * rect.width;
-            y += c.destinationYPercentage * rect.height;
-            w = c.destinationWidthPercentage * w;
-            h = c.destinationHeightPercentage * h;
-          }
-
-          return { x, y, w, h, data };
-        }
-      })
-  );
+  switch (fn) {
+    case "extractElements":
+      return extractElements(...args);
+    case "refreshInfo":
+      return refreshInfo(...args);
+  }
 };
 
 module.exports = {
-  getImages
+  getElements
 };

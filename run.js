@@ -3,7 +3,8 @@ const SmartBuffer = require('smart-buffer').SmartBuffer;
 const getPixels = require("get-pixels")
 const findChrome = require('chrome-finder');
 const awaitifyStream = require('awaitify-stream');
-const { getImages } = require("./getImages");
+const { getElements } = require("./getElements");
+const uuid = require('uuid/v1');
 
 const IMAGE_FORMAT = "png"; // "raw" or "png"
 
@@ -60,6 +61,22 @@ const run = async () => {
 
   process.on('SIGTERM', terminate);
 
+  const refreshTrackedElements = async () => {
+    const trackedElements = await page.evaluate(getElements, "refreshInfo");
+    console.error(trackedElements);
+    const buf = new SmartBuffer();
+    buf.writeString("hr"); // halo refresh
+    buf.writeUInt32LE(trackedElements.length);
+    trackedElements.forEach(element => buf
+      .writeStringNT(element.id)
+      .writeInt32LE(element.x)
+      .writeInt32LE(element.y)
+      .writeInt32LE(element.w)
+      .writeInt32LE(element.h)
+    );
+    sendCommand(buf.toBuffer());
+  }
+
   page.on('screencastframe', async frame => {
     const screenshot = Buffer.from(frame.data, 'base64');
 
@@ -84,9 +101,13 @@ const run = async () => {
     }
     sendCommand(buf.toBuffer());
 
+    await refreshTrackedElements();
+
     await page.screencastFrameAck(frame.sessionId);
     console.error(`Sent frame at ${Date.now() / 1000}`);
   });
+
+  await page.exposeFunction("uuid", () => uuid());
 
   await page.startScreencast({format: 'png', everyNthFrame: 1});
   console.error("Recording screencast...");
@@ -173,20 +194,38 @@ const run = async () => {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
             console.error(`Halo event at ${x},${y}`);
-            const images = await page.evaluate(getImages, x, y);
-            if (images.length === 0) {
+
+            const elements = await page.evaluate(getElements, "extractElements", x, y);
+            if (elements.length === 0) {
               break;
             }
-            const image = images[0];
-            console.error({x: image.x, y: image.y, w: image.w, h: image.h});
+            const element = elements[0];
+            console.error({id: element.id, type: element.type, x: element.x, y: element.y, w: element.w, h: element.h});
 
             const buf = new SmartBuffer();
-            buf.writeString("hi"); // halo image
-            buf.writeInt32LE(image.x);
-            buf.writeInt32LE(image.y);
-            buf.writeInt32LE(image.w);
-            buf.writeInt32LE(image.h);
-            buf.writeBuffer(Buffer.from(image.data, 'base64'));
+            switch (element.type) {
+              case 'img':
+              case 'canvas':
+                buf.writeString("hi");
+                break;
+              case 'pre':
+                buf.writeString("hc");
+                break;
+            }
+            buf.writeStringNT(element.id);
+            buf.writeInt32LE(element.x);
+            buf.writeInt32LE(element.y);
+            buf.writeInt32LE(element.w);
+            buf.writeInt32LE(element.h);
+            switch (element.type) {
+              case 'img':
+              case 'canvas':
+                buf.writeBuffer(Buffer.from(element.data, 'base64'));
+                break;
+              case 'pre':
+                buf.writeString(element.data);
+                break;
+            }
             sendCommand(buf.toBuffer());
             break;
           }
