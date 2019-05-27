@@ -13,8 +13,7 @@ handlePortalRefreshData: payload
 		isMyChild := morph owner = self.
 		isOnPage := portalInfos anySatisfy: [:each | id = each first].		
 		(isMyChild and: [isOnPage not]) ifTrue: [morph delete].
-		(isMyChild not or: [isOnPage not]) ifTrue: [self portalMorphs removeKey: id]
-	].
+		(isMyChild not or: [isOnPage not]) ifTrue: [self portalMorphs removeKey: id]].
 
 	portalInfos do: [:each | | id rect | id := each first. rect := each second.
 		self movePortal: id rect: rect].
