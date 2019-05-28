@@ -11,7 +11,5 @@ terminate
 	CMFWinFFI closeHandle: (stdoutRead getHandle unsignedLongLongAt: 1).
 	CMFWinFFI closeHandle: (stdoutWrite getHandle unsignedLongLongAt: 1).
 
-	stderrRead ifNotNil: [
-		CMFWinFFI noError: [CMFWinFFI closeHandle: (stderrRead getHandle unsignedLongLongAt: 1)]].
-	stderrWrite ifNotNil: [
-		CMFWinFFI noError: [CMFWinFFI closeHandle: (stderrWrite getHandle unsignedLongLongAt: 1)]]
+	stderrRead ifNotNil: [CMFWinFFI closeHandle: (stderrRead getHandle unsignedLongLongAt: 1)].
+	stderrWrite ifNotNil: [CMFWinFFI closeHandle: (stderrWrite getHandle unsignedLongLongAt: 1)]
