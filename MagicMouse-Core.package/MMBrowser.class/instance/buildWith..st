@@ -8,18 +8,16 @@ buildWith: aBuilder
 			children: {
 				aBuilder pluggablePanelSpec new
 					wantsResizeHandles: true;
-					frame: (LayoutFrame fractions: (0@0 extent: 1@0));
+					frame: (LayoutFrame fractions: (0@0 extent: 1@0) offsets: ((0@0) extent: (0@ 25)));
 					children: {
-						aBuilder pluggableTextSpec new 
+						aBuilder pluggableInputFieldSpec new 
 							model: self;
-							hardLineWrap: false;
-							softLineWrap: false;
 							getText: #locationText;
 							setText: #changeLocation:;
 							askBeforeDiscardingEdits: false;
 							frame: (LayoutFrame fractions: (0@0 extent: 0.8@1));
 							yourself.
-						aBuilder pluggableTextSpec new 
+						aBuilder pluggableInputFieldSpec new 
 							model: self;
 							hardLineWrap: false;
 							softLineWrap: false;
