@@ -58,6 +58,25 @@ const run = async () => {
     buf.writeString(url);
     sendCommand(buf.toBuffer());
   })
+  page.on('domcontentloaded', async () => {
+    console.error("domcontentloaded");
+    const ldJsons = await page.$$eval(
+      'script[type="application/ld+json"]',
+      nodes => nodes.map(node => JSON.parse(node.innerText)));
+    console.error("LD JSON", ldJsons);
+    const buf = new SmartBuffer();
+    buf.writeString("s");
+    buf.writeUInt32LE(ldJsons.length);
+    ldJsons.forEach(ldJson => {
+      const json = JSON.stringify(ldJson);
+      // We need to get the length of the string in its encoded form, not when it is still a JS string, since
+      // "物".length == 1 whereas Buffer.from("物").length == 3.
+      const strBuf = Buffer.from(json);
+      buf.writeUInt32LE(strBuf.length);
+      buf.writeBuffer(strBuf);
+    })
+    await sendCommand(buf.toBuffer());
+  });
 
   process.on('SIGTERM', terminate);
 
