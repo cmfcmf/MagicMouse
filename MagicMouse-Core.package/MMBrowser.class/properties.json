@@ -8,7 +8,9 @@
 	"instvars" : [
 		"locationText",
 		"searchText",
-		"browser" ],
+		"browser",
+		"extractedObjects",
+		"selectedExtractedObject" ],
 	"name" : "MMBrowser",
 	"pools" : [
 		 ],

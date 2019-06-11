@@ -3,4 +3,5 @@ initialize
 	super initialize.
 	locationText := 'https://google.com'.
 	searchText := ''.
-	browser := MMBrowserMorph new
+	browser := MMBrowserMorph new.
+	extractedObjects := OrderedCollection new.

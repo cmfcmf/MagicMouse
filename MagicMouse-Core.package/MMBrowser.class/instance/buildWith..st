@@ -29,11 +29,24 @@ buildWith: aBuilder
 					};
 					yourself.
 				aBuilder pluggablePanelSpec new
-					model: self;
-					name: 'browserPanel';
-					frame: (LayoutFrame fractions: (0@0 extent: 1@1) offsets: ((0@25) extent: (0@ -25)));
-					children: #getBrowserMorph;
-					margin: 20;
+					frame: (LayoutFrame fractions: (0@0 extent: 1@1) 
+						offsets: ((0@25) extent: (0@ -25)));
+					spacing: 5;
+					children: {
+						aBuilder pluggablePanelSpec new
+							model: self;
+							frame: (0@0 extent: 0.8@1);
+							children: #getBrowserMorph;
+							yourself.
+						aBuilder pluggableListSpec new
+							model: self;
+							frame: (0.8@0 corner: 1@1);
+							list: #extractedObjects;
+							doubleClick: #exploreExtractedObject;
+							getSelected: #selectedExtractedObject;
+							setSelected: #selectedExtractedObject:;
+							yourself
+					};
 					yourself.
 			};
 			yourself)

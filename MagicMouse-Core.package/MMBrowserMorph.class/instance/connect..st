@@ -16,7 +16,8 @@ connect: aUrl
 			command caseOf: {
 				[$i] -> [self updateImage: payload].
 				[$h] -> [self handleHaloData: payload].
-				[$l] -> [self locationUpdated: payload]
+				[$l] -> [self locationUpdated: payload].
+				[$s] -> [self handleStructuredData: payload].
 			}
 		] repeat
 	] fork
