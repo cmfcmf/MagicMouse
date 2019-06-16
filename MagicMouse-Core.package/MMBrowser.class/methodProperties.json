@@ -3,8 +3,9 @@
 		"open" : "cf 5/1/2019 15:26",
 		"openOn:" : "cf 5/1/2019 17:19" },
 	"instance" : {
-		"buildWith:" : "cmfcmf 6/11/2019 09:06",
+		"buildWith:" : "cmfcmf 6/14/2019 11:11",
 		"changeLocation:" : "cf 5/17/2019 09:19",
+		"dragExtractedObject:" : "cmfcmf 6/14/2019 11:14",
 		"exploreExtractedObject" : "cmfcmf 6/11/2019 09:24",
 		"extractedObjects" : "cmfcmf 6/11/2019 08:54",
 		"extractedObjects:" : "cmfcmf 6/11/2019 08:55",
@@ -17,4 +18,4 @@
 		"searchText:" : "cf 5/1/2019 15:58",
 		"selectedExtractedObject" : "cmfcmf 6/11/2019 09:06",
 		"selectedExtractedObject:" : "cmfcmf 6/11/2019 09:06",
-		"structuredDataChanged:" : "cmfcmf 6/11/2019 09:31" } }
+		"structuredDataChanged:" : "cmfcmf 6/14/2019 11:23" } }

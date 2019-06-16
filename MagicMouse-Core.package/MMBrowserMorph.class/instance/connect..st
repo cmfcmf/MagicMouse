@@ -18,6 +18,7 @@ connect: aUrl
 				[$h] -> [self handleHaloData: payload].
 				[$l] -> [self locationUpdated: payload].
 				[$s] -> [self handleStructuredData: payload].
+				[$g] -> [self handleGitClone: payload].
 			}
 		] repeat
 	] fork

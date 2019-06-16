@@ -45,6 +45,7 @@ buildWith: aBuilder
 							doubleClick: #exploreExtractedObject;
 							getSelected: #selectedExtractedObject;
 							setSelected: #selectedExtractedObject:;
+							dragItem: #dragExtractedObject:;
 							yourself
 					};
 					yourself.
