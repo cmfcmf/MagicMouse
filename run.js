@@ -39,12 +39,11 @@ const run = async () => {
     executablePath: findChrome()
   });
   const page = await browser.newPage();
+  await page.setBypassCSP(true);
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36');
   await page.setViewport({width: 590, height: 338});
 
-  // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
-  console.error(`Navigating to ${url}`);
-  await page.goto(url);
+  process.on('SIGTERM', terminate);
 
   page.on('framenavigated', (frame) => {
     const url = page.url();
@@ -76,9 +75,32 @@ const run = async () => {
       buf.writeBuffer(strBuf);
     })
     await sendCommand(buf.toBuffer());
-  });
 
-  process.on('SIGTERM', terminate);
+    if (page.url().startsWith('https://github.com/')) {
+      console.error("Instrumenting clone button");
+      page.evaluate(() => {
+        const bar = document.getElementsByClassName("file-navigation");
+        if (bar.length === 0) {
+          return;
+        }
+
+        const urlField = document.querySelector(".https-clone-options input");
+        if (!urlField) {
+          return;
+        }
+        const cloneUrl = urlField.value;
+        let name = cloneUrl.split("/")[4];
+        name = name.substr(0, name.length - 4);
+        bar[0].insertAdjacentHTML("beforeEnd", `<span class="btn btn-sm btn-primary ml-2" onClick="gitClone('` + name + `', '` + cloneUrl + `')">Clone to Squeak</span>`);
+
+        const normalCloneButton = document.getElementsByClassName("get-repo-select-menu");
+        if (normalCloneButton.length === 0 || normalCloneButton[0].children.length === 0) {
+          return;
+        }
+        normalCloneButton[0].children[0].classList.remove("btn-primary");
+      });
+    }
+  });
 
   const refreshTrackedElements = async () => {
     const trackedElements = await page.evaluate(getElements, "refreshInfo");
@@ -127,6 +149,20 @@ const run = async () => {
   });
 
   await page.exposeFunction("uuid", () => uuid());
+  await page.exposeFunction("gitClone", async (name, url) => {
+    console.error("GIT CLONE", name, url)
+    const buf = new SmartBuffer();
+    buf.writeString("g");
+    const strBuf = Buffer.from(name);
+    buf.writeUInt32LE(strBuf.length);
+    buf.writeBuffer(strBuf);
+    buf.writeString(url);
+    await sendCommand(buf.toBuffer());
+  });
+
+  // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
+  console.error(`Navigating to ${url}`);
+  await page.goto(url);
 
   await page.startScreencast({format: 'png', everyNthFrame: 1});
   console.error("Recording screencast...");
