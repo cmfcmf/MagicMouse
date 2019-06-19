@@ -10,7 +10,8 @@
 		"process",
 		"viewportSize",
 		"imageUpdaterProcess",
-		"portalMorphs" ],
+		"portalMorphs",
+		"location" ],
 	"name" : "MMBrowserMorph",
 	"pools" : [
 		 ],

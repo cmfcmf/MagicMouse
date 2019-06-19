@@ -7,6 +7,8 @@ connect: aUrl
 	process := MMProcessWrapper newForOS.
 	self class debugEnabled ifTrue: [process enableDebug].
 	process startNodeScript: path arguments: {aUrl}.
+	
+	location := aUrl.
 
 	imageUpdaterProcess := [
 		 [ | length command payload |
