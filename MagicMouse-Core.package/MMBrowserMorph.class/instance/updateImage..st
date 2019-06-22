@@ -13,12 +13,13 @@ updateImage: payload
 			(((png at: index * 4 + 1) asInteger) << 16) + 
 			(((png at: index * 4 + 0) asInteger) << 24)
 		)]. 
-	].
-	format = $p ifTrue: [
-		png := payload copyFrom: 3 to: payload size.
-		form := Form fromBinaryStream: png readStream ].
+	] ifFalse: [ | reader |
+		reader := (format caseOf: {
+			[$p] -> [PNGReadWriter].
+			[$j] ->[MMFastJPEGReader]}) new.
+		reader on: (payload readStream skip: 2; yourself).
+		(format caseOf: {
+			[$p] -> [form := reader nextImage].
+			[$j] ->[form := reader nextImage: self image]})].
 
-	self flag: #fixme. "Check if the optimization using displayOn:at:rule is faster"
-	self flag: #fixme. "Check if the rule constant `Form over` is the best and fastest"
-	self image extent = form extent ifTrue: [self changed. 
-		form displayOn: self image at: 0@0 rule: Form paint] ifFalse: [self image: form]
+	self image: form
