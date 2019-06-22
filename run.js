@@ -6,7 +6,7 @@ const awaitifyStream = require('awaitify-stream');
 const { getElements } = require("./getElements");
 const uuid = require('uuid/v1');
 
-const IMAGE_FORMAT = "png"; // "raw" or "png"
+const IMAGE_FORMAT = "jpeg"; // "raw", "jpeg", "png"
 
 const run = async () => {
   const url = process.argv[process.argv.length - 1];
@@ -125,6 +125,9 @@ const run = async () => {
     if (IMAGE_FORMAT === "png") {
       buf.writeString("ip");
       buf.writeBuffer(screenshot);
+    } else if (IMAGE_FORMAT === "jpeg") {
+        buf.writeString("ij");
+        buf.writeBuffer(screenshot);
     } else if (IMAGE_FORMAT === "raw") {
       const pixels = await new Promise((resolve, reject) => getPixels(screenshot, 'image/png', (err, pixels) => {
         if (err) {
@@ -164,7 +167,7 @@ const run = async () => {
   console.error(`Navigating to ${url}`);
   await page.goto(url);
 
-  await page.startScreencast({format: 'png', everyNthFrame: 1});
+  await page.startScreencast({format: IMAGE_FORMAT === "jpeg" ? "jpeg" : "png", everyNthFrame: 1});
   console.error("Recording screencast...");
 
   const reader = awaitifyStream.createReader(process.stdin);
