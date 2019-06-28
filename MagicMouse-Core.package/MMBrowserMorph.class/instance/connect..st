@@ -6,7 +6,7 @@ connect: aUrl
 	
 	process := MMProcessWrapper newForOS.
 	self class debugEnabled ifTrue: [process enableDebug].
-	process startNodeScript: path arguments: {aUrl}.
+	process startNodeScript: path arguments: {aUrl. viewportSize x. viewportSize y}.
 	
 	location := aUrl.
 
