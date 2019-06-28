@@ -9,7 +9,11 @@ const uuid = require('uuid/v1');
 const IMAGE_FORMAT = "jpeg"; // "raw", "jpeg", "png"
 
 const run = async () => {
-  const url = process.argv[process.argv.length - 1];
+  const url = process.argv[process.argv.length - 3];
+  const screenSize = {
+    x: parseInt(process.argv[process.argv.length - 2], 10),
+    y: parseInt(process.argv[process.argv.length - 1], 10),
+  };
 
   const terminate = async () => {
     console.error("Terminating...");
@@ -41,7 +45,7 @@ const run = async () => {
   const page = await browser.newPage();
   await page.setBypassCSP(true);
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36');
-  await page.setViewport({width: 590, height: 338});
+  await page.setViewport({width: screenSize.x, height: screenSize.y});
 
   process.on('SIGTERM', terminate);
 
