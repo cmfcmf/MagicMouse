@@ -6,6 +6,7 @@ const awaitifyStream = require('awaitify-stream');
 const { getElements } = require("./getElements");
 const uuid = require('uuid/v1');
 
+const ID_ATTRIBUTE = "data-magic-mouse-id";
 const IMAGE_FORMAT = "jpeg"; // "raw", "jpeg", "png"
 
 const run = async () => {
@@ -183,6 +184,70 @@ const run = async () => {
     console.error(`Received command ${command} with payload of size ${size}.`);
 
     switch (command) {
+      case 'f':
+        const x = payload.readInt32LE();
+        const y = payload.readInt32LE();
+        console.error(`DROPPED MORPH AT ${x}@${y}`);
+
+        const form = await page.evaluateHandle((x, y) => document.elementsFromPoint(x, y)
+          .find(element => element.tagName === "FORM"), x, y);
+
+        const fields = await form.$$("input, select");
+
+        const buf = new SmartBuffer();
+        buf.writeString("f");
+        buf.writeInt32LE(fields.length);
+        const inputs = await Promise.all(fields.map(async field => {
+          let description = await (await field.getProperty("placeholder")).jsonValue();
+          if (description === undefined) {
+            description = await (await field.getProperty("name")).jsonValue();
+          }
+          return {
+            boundingBox: await field.boundingBox(),
+            description: description,
+            id: await (await page.evaluateHandle(async (element, ID_ATTRIBUTE) => {
+              let id = element.getAttribute(ID_ATTRIBUTE);
+              if (!id) {
+                id = await window.uuid();
+                element.setAttribute(ID_ATTRIBUTE, id);
+              }
+              return id;
+            }, field, ID_ATTRIBUTE)).jsonValue()
+          }
+        }));
+        inputs.forEach(({boundingBox, description, id}) => {
+          buf.writeInt32LE(boundingBox.x);
+          buf.writeInt32LE(boundingBox.y);
+          buf.writeInt32LE(boundingBox.width);
+          buf.writeInt32LE(boundingBox.height);
+
+          const strBuf = Buffer.from(description);
+          buf.writeUInt32LE(strBuf.length);
+          buf.writeBuffer(strBuf);
+
+          const strBuf2 = Buffer.from(id);
+          buf.writeUInt32LE(strBuf2.length);
+          buf.writeBuffer(strBuf2);
+        })
+        sendCommand(buf.toBuffer());
+        break;
+      case 't':
+        const id = payload.readString(payload.readInt32LE());
+        const text = payload.readString(payload.readInt32LE());
+        console.error(`Update Text: ${id} ${text}`);
+        await page.evaluate((id, text, ID_ATTRIBUTE) => {
+          const element = document.querySelector(`[${ID_ATTRIBUTE}="${id}"]`);
+          if (element.tagName === "INPUT") {
+            element.value = text;
+          } else if (element.tagName === "SELECT") {
+            const option = Array.from(element.options)
+              .find(option => option.innerText.toLocaleLowerCase() === text.toLocaleLowerCase());
+            if (option) {
+              element.value = option.value;
+            }
+          }
+        }, id, text.trim(), ID_ATTRIBUTE);
+        break;
       case 'k':
         // This command is necessary because the Squeak ProcessWrapper is unable to terminate processes.
         await terminate();

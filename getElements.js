@@ -210,6 +210,16 @@ const getElements = (fn, ...args) => {
       return extractCanvas(element, includeData);
     } else if (element.tagName === "PRE") {
       return extractPre(element, includeData);
+    } else {
+      return { // TODO
+        id: "42",
+        type: "todo",
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+        data: null
+      };
     }
   };
 
