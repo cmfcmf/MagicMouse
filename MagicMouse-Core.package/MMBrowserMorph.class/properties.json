@@ -11,7 +11,8 @@
 		"viewportSize",
 		"imageUpdaterProcess",
 		"portalMorphs",
-		"location" ],
+		"location",
+		"tmpDomainObject" ],
 	"name" : "MMBrowserMorph",
 	"pools" : [
 		 ],

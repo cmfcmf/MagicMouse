@@ -21,6 +21,7 @@ connect: aUrl
 				[$l] -> [self locationUpdated: payload].
 				[$s] -> [self handleStructuredData: payload].
 				[$g] -> [self handleGitClone: payload].
+				[$f] -> [self handleFormFields: payload]
 			}
 		] repeat
 	] fork
