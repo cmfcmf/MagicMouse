@@ -1,3 +1,6 @@
 events
 keyStroke: anEvent
-	self sendEvent: #keyPress withString: anEvent keyString
+
+	anEvent keyString = '<Cmd-l>'
+		ifTrue: [self fullscreen: previousOwner isNil]
+		ifFalse: [self sendEvent: #keyPress withString: anEvent keyString]

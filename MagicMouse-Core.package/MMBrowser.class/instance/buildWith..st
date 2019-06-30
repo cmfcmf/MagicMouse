@@ -2,7 +2,7 @@ as yet unclassified
 buildWith: aBuilder
 	
 	 ^ aBuilder build: (aBuilder pluggableWindowSpec new
-			label: 'MagicMouse Browser';
+			label: MMBrowserMorph title;
 			extent: 600@400;
 			model: self;
 			children: {

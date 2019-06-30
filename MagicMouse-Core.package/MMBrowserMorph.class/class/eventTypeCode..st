@@ -2,11 +2,13 @@ as yet unclassified
 eventTypeCode: aType
 
 	^ (Dictionary newFrom: {
-		#mouseUp -> 0.
-		#mouseDown -> 1.
-		#mouseMove -> 2.
-		#keyPress -> 3.
-		#resize -> 4.
-		#mouseWheel -> 5.
-		#halo -> 6.
+		#mouseLeftUp -> 0.
+		#mouseLeftDown -> 1.
+		#mouseRightUp -> 2.
+		#mouseRightDown -> 3.
+		#mouseMove -> 4.
+		#keyPress -> 5.
+		#resize -> 6.
+		#mouseWheel -> 7.
+		#halo -> 8.
 	}) at:  aType ifAbsent: [self error: 'unknown event type']

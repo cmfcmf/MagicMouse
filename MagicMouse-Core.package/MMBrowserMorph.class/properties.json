@@ -4,7 +4,8 @@
 		 ],
 	"classvars" : [
 		"DebugEnabled",
-		"GitRepositoryPath" ],
+		"GitRepositoryPath",
+		"PortalsOnRightClick" ],
 	"commentStamp" : "",
 	"instvars" : [
 		"process",
@@ -12,7 +13,8 @@
 		"imageUpdaterProcess",
 		"portalMorphs",
 		"location",
-		"tmpDomainObject" ],
+		"tmpDomainObject",
+		"previousOwner" ],
 	"name" : "MMBrowserMorph",
 	"pools" : [
 		 ],
