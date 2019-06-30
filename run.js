@@ -268,15 +268,40 @@ const run = async () => {
           case 1:
             page.mouse.down({ button: "left" });
             break;
-          case 2: {
+          case 2:
+            page.mouse.up({ button: "right" });
+            break;
+          case 3:
+            page.mouse.down({ button: "right" });
+            break;
+          case 4: {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
             console.error('Moving to', x, y);
             page.mouse.move(x, y);
             break;
-          } case 3:
-            const squeakKeyString = payload.readString(size, "ascii");
+          } case 5:
+            let squeakKeyString = payload.readString(size, "ascii");
+
             let keyName;
+            const modifiers = [];
+            if (squeakKeyString.startsWith("<Cmd-")) {
+              modifiers.push("ControlLeft"); // Not a typo. Squeak send <Cmd-a> when pressing CTRL+A on Windows
+              squeakKeyString = squeakKeyString.replace("Cmd-", "");
+            }
+            if (squeakKeyString.startsWith("<Ctrl-")) {
+              modifiers.push("ControlLeft");
+              squeakKeyString = squeakKeyString.replace("Ctrl-", "");
+            }
+            if (squeakKeyString.startsWith("<Shift-")) {
+              modifiers.push("ShiftLeft");
+              squeakKeyString = squeakKeyString.replace("Shift-", "");
+            }
+
+            if (squeakKeyString.length === 3 && squeakKeyString[0] === "<" && squeakKeyString[2] === ">") {
+              squeakKeyString = squeakKeyString[1];
+            }
+
             if (squeakKeyString.length > 1) {
               const conversion = {
                 '<space>': 'Space',
@@ -299,24 +324,30 @@ const run = async () => {
                 '<insert>': 'Insert',
               };
               keyName = conversion[squeakKeyString];
+              if (keyName === undefined) {
+                console.error('Unknown key', squeakKeyString);
+                break;
+              }
             } else {
               keyName = squeakKeyString;
             }
-            console.error('Typing', squeakKeyString, keyName);
-
+            console.error('Typing', squeakKeyString, modifiers);
+            await Promise.all(modifiers.map(key => page.keyboard.down(key)));
             await page.keyboard.press(keyName);
+            await Promise.all(modifiers.map(key => page.keyboard.up(key)));
+
             break;
-          case 4: {
+          case 6: {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
             page.setViewport({width: x, height: y});
             break;
-          } case 5: {
+          } case 7: {
             const y = payload.readUInt32LE();
             console.error('scroll', y);
             page.evaluate((y) => window.scrollBy(0, y == 0 ? -20 : 20), y);
             break;
-          } case 6: {
+          } case 8: {
             // These are relative to the visible part of the page, not the top left corner
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
