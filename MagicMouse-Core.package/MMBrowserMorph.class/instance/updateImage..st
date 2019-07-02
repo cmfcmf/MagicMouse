@@ -14,12 +14,13 @@ updateImage: payload
 			(((png at: index * 4 + 0) asInteger) << 24)
 		)]. 
 	] ifFalse: [ | reader |
-		reader := (format caseOf: {
-			[$p] -> [PNGReadWriter].
-			[$j] ->[MMFastJPEGReader]}) new.
-		reader on: (payload readStream skip: 2; yourself).
 		(format caseOf: {
-			[$p] -> [form := reader nextImage].
-			[$j] ->[form := reader nextImage: self image]})].
+			[$p] -> [reader := PNGReadWriter on: (payload copyFrom: 3 to: payload size) readStream.
+				form := reader nextImage].
+			[$j] ->[reader := MMFastJPEGReader on: (payload readStream skip: 2; yourself).
+				form := reader nextImage: self image]})].
+	self class runChromeHeadless ifFalse: [
+		"We need to crop the incoming image if we don't run Chrome in headless mode."
+		form := form contentsOfArea: (0@0 extent: viewportSize)].
 
 	self image: form

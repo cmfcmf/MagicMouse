@@ -32,6 +32,7 @@ handleFormFields: payload
 			when: #textChanged evaluate: [:text | self contentOfField: id changedTo: text];
 			yourself.
 		self addMorph: fieldMorph.
+		self portalMorphs at: id put: fieldMorph.
 		self contentOfField: id changedTo: fieldMorph getTextFromInnerMorphs].
 	
 	tmpDomainObject := nil

@@ -4,8 +4,11 @@ fullscreen: aBoolean
 	aBoolean
 		ifTrue: [previousOwner := self owner.
 			self
+				beSticky;
 				openInWorld: self world;
 				extent: self world extent;
 				position: 0@0]
-		ifFalse: [previousOwner addMorph: self.
+		ifFalse: [
+			self beUnsticky.
+			previousOwner addMorph: self.
 			previousOwner := nil]

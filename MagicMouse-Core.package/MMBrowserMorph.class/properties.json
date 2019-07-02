@@ -3,9 +3,11 @@
 	"classinstvars" : [
 		 ],
 	"classvars" : [
+		"ChromeProfilePath",
 		"DebugEnabled",
 		"GitRepositoryPath",
-		"PortalsOnRightClick" ],
+		"PortalsOnRightClick",
+		"RunChromeHeadless" ],
 	"commentStamp" : "",
 	"instvars" : [
 		"process",
