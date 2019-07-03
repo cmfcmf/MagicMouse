@@ -17,8 +17,8 @@ handleFormFields: payload
 		id := payload copyFrom: start + 4 to: start + 4 + idSize - 1.
 		
 		fields add: (x@y extent: w@h).
-		descriptions add: description asString.
-		ids add: id asString.
+		descriptions add: description asString utf8ToSqueak.
+		ids add: id asString utf8ToSqueak.
 		start := start + 4 + idSize].
 	
 	self submorphs select: [:each | each isKindOf: HObjectFieldMorph] 

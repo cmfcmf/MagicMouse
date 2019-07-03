@@ -1,8 +1,9 @@
 as yet unclassified
-contentOfField: id changedTo: text
+contentOfField: anId changedTo: text
 
-	| bytes content | 
-	content := text asString.
+	| bytes content id |
+	id := anId squeakToUtf8.
+	content := text asString squeakToUtf8.
 	bytes := ByteArray new: 8 + id byteSize + content byteSize.
 	bytes signedLongAt: 1 put: id byteSize.
 	bytes replaceFrom: 5 to: 5 + id byteSize - 1 with: id asByteArray.

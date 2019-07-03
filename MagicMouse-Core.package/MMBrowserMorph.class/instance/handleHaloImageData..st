@@ -5,7 +5,6 @@ handleHaloImageData: payload
 	info := self getIdAndRectFrom: payload startAt: 3.
 	id := info first. rect := info second. next := info third.
 	
-	self flag: #fixme. "String encodings :)"
 	data := payload copyFrom: next to: payload size.
 	
 	form := Form fromBinaryStream: data readStream.

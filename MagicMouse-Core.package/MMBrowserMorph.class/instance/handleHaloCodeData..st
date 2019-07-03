@@ -5,8 +5,7 @@ handleHaloCodeData: payload
 	info := self getIdAndRectFrom: payload startAt: 3.
 	id := info first. rect := info second. next := info third.
 	
-	self flag: #fixme. "String encodings :)"
-	data := (payload copyFrom: next to: payload size) asString.
+	data := (payload copyFrom: next to: payload size) asString utf8ToSqueak.
 	
 	morph := MMTextMorphWithModel new.
 	morph
