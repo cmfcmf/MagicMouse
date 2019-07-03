@@ -6,8 +6,11 @@ connect: aUrl
 	
 	process := MMProcessWrapper newForOS.
 	self class debugEnabled ifTrue: [process enableDebug].
-	process startNodeScript: path arguments: {aUrl. viewportSize x. viewportSize y.
-		self class runChromeHeadless ifTrue: ['headless'] ifFalse: ['windowed']}.
+	process startNodeScript: path 
+		arguments: {aUrl. viewportSize x. viewportSize y.
+			self class runChromeHeadless ifTrue: ['headless'] ifFalse: ['windowed'].
+			self class chromeProfilePath}
+		nodeArguments: (self class debugNodejs ifTrue: [{'--inspect'}] ifFalse: [{}]).
 	
 	location := aUrl.
 

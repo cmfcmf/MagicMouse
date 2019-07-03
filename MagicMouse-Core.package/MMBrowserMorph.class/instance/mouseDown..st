@@ -1,5 +1,6 @@
 events
 mouseDown: anEvent
+
 	| position |
 	position := (anEvent position - self position) max: 0@0.
 	(self class portalsOnRightClick and: [anEvent yellowButtonChanged]) ifTrue: [

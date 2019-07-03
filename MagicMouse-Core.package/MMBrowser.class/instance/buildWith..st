@@ -1,4 +1,4 @@
-as yet unclassified
+building
 buildWith: aBuilder
 	
 	 ^ aBuilder build: (aBuilder pluggableWindowSpec new
@@ -9,26 +9,10 @@ buildWith: aBuilder
 				aBuilder pluggablePanelSpec new
 					wantsResizeHandles: true;
 					frame: (LayoutFrame fractions: (0@0 extent: 1@0) offsets: ((0@0) extent: (0@ 25)));
-					children: {
-						aBuilder pluggableInputFieldSpec new 
-							model: self;
-							getText: #locationText;
-							setText: #changeLocation:;
-							askBeforeDiscardingEdits: false;
-							frame: (LayoutFrame fractions: (0@0 extent: 0.8@1));
-							yourself.
-						aBuilder pluggableInputFieldSpec new 
-							model: self;
-							hardLineWrap: false;
-							softLineWrap: false;
-							getText: #searchText;
-							setText: #searchFor:;
-							askBeforeDiscardingEdits: false;
-							frame: (LayoutFrame fractions: (0.8@0 extent: 0.2@1));
-							yourself.
-					};
+					children: (self buildTopBarWith: aBuilder);
 					yourself.
 				aBuilder pluggablePanelSpec new
+					wantsResizeHandles: true;
 					frame: (LayoutFrame fractions: (0@0 extent: 1@1) 
 						offsets: ((0@25) extent: (0@ -25)));
 					spacing: 5;

@@ -1,4 +1,4 @@
-event sending
+events
 handlesMouseWheel: anEvent
 
 	^ true

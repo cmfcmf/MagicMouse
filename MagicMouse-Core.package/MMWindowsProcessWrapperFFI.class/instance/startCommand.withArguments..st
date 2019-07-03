@@ -1,7 +1,7 @@
 as yet unclassified
 startCommand: command withArguments: arguments
 	|  startupInfo pipe commandLine |
-	self flag: #fixme. "Properly escape arguments"
+	self flag: #fixme. "Properly escape arguments?"
 	commandLine := command, ' ', ((arguments collect: [:arg | '"', arg, '"']) joinSeparatedBy: ' '). 
 	
 	pipe := CMFWinFFI makePipe: false.
@@ -45,6 +45,7 @@ startCommand: command withArguments: arguments
 		Transcript clear.
 		[[[ | bytesAvailable |
 			bytesAvailable := self peek: stderrRead. 
-			bytesAvailable > 0 ifTrue: [Transcript show: (self stderrNextBuffer: bytesAvailable) asString].
+			bytesAvailable > 0
+				ifTrue: [Transcript show: (self stderrNextBuffer: bytesAvailable) asString].
 			(Delay forMilliseconds: 200) wait.
 			true] ifError: [false]] whileTrue] fork]

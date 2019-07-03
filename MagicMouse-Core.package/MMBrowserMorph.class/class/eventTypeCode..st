@@ -11,4 +11,6 @@ eventTypeCode: aType
 		#resize -> 6.
 		#mouseWheel -> 7.
 		#halo -> 8.
+		#back -> 9.
+		#forward -> 10.
 	}) at:  aType ifAbsent: [self error: 'unknown event type']
