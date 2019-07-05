@@ -211,13 +211,14 @@ const getElements = (fn, ...args) => {
     } else if (element.tagName === "PRE") {
       return extractPre(element, includeData);
     } else {
-      return { // TODO
-        id: "42",
-        type: "todo",
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0,
+      const rect = element.getBoundingClientRect();
+      return {
+        id: await getIdOf(element),
+        type: "other",
+        x: rect.x,
+        y: rect.y,
+        w: rect.width,
+        h: rect.height,
         data: null
       };
     }

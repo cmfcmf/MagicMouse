@@ -6,15 +6,25 @@ const awaitifyStream = require('awaitify-stream');
 const { getElements } = require("./getElements");
 const uuid = require('uuid/v1');
 
+// TODO: ENCODINGS
+
+Array.prototype.flat = function() { return this.reduce((acc, x) => acc.concat(x), []); };
+Array.prototype.flatMap = function(mapper) { return this.map(mapper).flat(); };
+
 const ID_ATTRIBUTE = "data-magic-mouse-id";
 const IMAGE_FORMAT = "jpeg"; // "raw", "jpeg", "png"
 
+console.error('Node.js arguments', process.argv);
+console.error('Image format', IMAGE_FORMAT);
+
 const run = async () => {
-  const url = process.argv[process.argv.length - 3];
+  const url = process.argv[process.argv.length - 5];
   const screenSize = {
-    x: parseInt(process.argv[process.argv.length - 2], 10),
-    y: parseInt(process.argv[process.argv.length - 1], 10),
+    x: parseInt(process.argv[process.argv.length - 4], 10),
+    y: parseInt(process.argv[process.argv.length - 3], 10),
   };
+  const headless = process.argv[process.argv.length - 2] === "headless";
+  const chromeProfilePath = process.argv[process.argv.length - 1];
 
   const terminate = async () => {
     console.error("Terminating...");
@@ -31,16 +41,14 @@ const run = async () => {
   }
 
   const browser = await puppeteer.launch({
-    ignoreDefaultArgs: [
-      "--hide-scrollbars", // show scrollbars
-      "--mute-audio", // enable audio
-      // "--headless", // launch browser in normal window
-
-      // Other possible flags to remove
-      // "--disable-renderer-backgrounding", "--disable-features", "--disable-dev-shm-usage", "--disable-background-networking"
+    ignoreDefaultArgs: true,
+    args: [
+      '--enable-automation',
+      ...(headless ? ['--headless'] : []),
+      // '--start-fullscreen',
+      "--force-device-scale-factor=1",
+      `--user-data-dir=${chromeProfilePath}`,
     ],
-    // I read somewhere that this makes it faster.
-    // args: ["--proxy-server='direct://'", '--proxy-bypass-list=*'],
     executablePath: findChrome()
   });
   const page = await browser.newPage();
@@ -50,20 +58,87 @@ const run = async () => {
 
   process.on('SIGTERM', terminate);
 
-  page.on('framenavigated', (frame) => {
-    const url = page.url();
-    if (frame.parentFrame()) {
-      console.error(`IGNORE: sub-frame navigating to ${url}`);
+  const instrumentGoogleSlides = async () => {
+    if (!page.url().startsWith('https://docs.google.com/presentation')) {
       return;
     }
-    console.error(`Navigating to ${url}`);
-    const buf = new SmartBuffer();
-    buf.writeString("l");
-    buf.writeString(url);
-    sendCommand(buf.toBuffer());
-  })
-  page.on('domcontentloaded', async () => {
-    console.error("domcontentloaded");
+    console.error("Instrumenting Google Slides");
+    const morphPositions = (await Promise.all(page.frames()
+      .filter(frame => !frame.isDetached())
+      .map(async frame => frame.evaluate((ID_ATTRIBUTE) =>
+        Promise.all(Array.from(new Set(Array.from(document.querySelectorAll('.punch-viewer-svgpage g[id*="paragraph"]'))
+          .map(element => element.parentNode)))
+          .map(element => ({
+            element,
+            text: Array.from(element.querySelectorAll('g[id*="paragraph"]'))
+              .map(paragraph => Array.from(paragraph.querySelectorAll('.sketchy-text-content-text text'))
+                .map(text => text.textContent)
+                .join(" "))
+              .join("\r")
+          }))
+          .filter(tmp => tmp.text.startsWith('!'))
+          .map(tmp => {
+            let element = tmp.element;
+            let path = null;
+            do {
+              element = element.parentNode;
+              path = element.querySelector('path');
+            } while (path === null);
+            return {...tmp, path};
+          })
+          .map(async tmp => {
+            const rect = tmp.path.getBoundingClientRect();
+
+            let id = tmp.path.getAttribute(ID_ATTRIBUTE);
+            if (!id) {
+              id = await window.uuid();
+              tmp.path.setAttribute(ID_ATTRIBUTE, id);
+            }
+
+            return {
+              id,
+              type: 'morph',
+              x: rect.x,
+              y: rect.y,
+              w: rect.width,
+              h: rect.height,
+              data: tmp.text,
+            };
+          })), ID_ATTRIBUTE)))).flat();
+
+      console.error("Google Slides Morph Positions", morphPositions);
+      morphPositions.forEach(sendPortalDataCommand);
+  }
+
+  const instrumentGitHub = async () => {
+    if (!page.url().startsWith('https://github.com/')) {
+      return;
+    }
+    console.error("Instrumenting clone button");
+    page.evaluate(() => {
+      const bar = document.getElementsByClassName("file-navigation");
+      if (bar.length === 0) {
+        return;
+      }
+
+      const urlField = document.querySelector(".https-clone-options input");
+      if (!urlField) {
+        return;
+      }
+      const cloneUrl = urlField.value;
+      let name = cloneUrl.split("/")[4];
+      name = name.substr(0, name.length - 4);
+      bar[0].insertAdjacentHTML("beforeEnd", `<span class="btn btn-sm btn-primary ml-2" onClick="gitClone('` + name + `', '` + cloneUrl + `')">Clone to Squeak</span>`);
+
+      const normalCloneButton = document.getElementsByClassName("get-repo-select-menu");
+      if (normalCloneButton.length === 0 || normalCloneButton[0].children.length === 0) {
+        return;
+      }
+      normalCloneButton[0].children[0].classList.remove("btn-primary");
+    });
+  }
+
+  const parseLDJsons = async () => {
     const ldJsons = await page.$$eval(
       'script[type="application/ld+json"]',
       nodes => nodes.map(node => JSON.parse(node.innerText)));
@@ -80,36 +155,52 @@ const run = async () => {
       buf.writeBuffer(strBuf);
     })
     await sendCommand(buf.toBuffer());
+  }
 
-    if (page.url().startsWith('https://github.com/')) {
-      console.error("Instrumenting clone button");
-      page.evaluate(() => {
-        const bar = document.getElementsByClassName("file-navigation");
-        if (bar.length === 0) {
-          return;
-        }
-
-        const urlField = document.querySelector(".https-clone-options input");
-        if (!urlField) {
-          return;
-        }
-        const cloneUrl = urlField.value;
-        let name = cloneUrl.split("/")[4];
-        name = name.substr(0, name.length - 4);
-        bar[0].insertAdjacentHTML("beforeEnd", `<span class="btn btn-sm btn-primary ml-2" onClick="gitClone('` + name + `', '` + cloneUrl + `')">Clone to Squeak</span>`);
-
-        const normalCloneButton = document.getElementsByClassName("get-repo-select-menu");
-        if (normalCloneButton.length === 0 || normalCloneButton[0].children.length === 0) {
-          return;
-        }
-        normalCloneButton[0].children[0].classList.remove("btn-primary");
-      });
+  const ignoreExecutionContextDestroyed = (error) => {
+    // Sometimes the frame is destroyed right after navigation, thus throwing an error
+    // when trying to evaluate a function in the frame's context. That's why we catch
+    // those errors here.
+    if (!error.message.endsWith('Execution context was destroyed, most likely because of a navigation.') &&
+      !error.message.endsWith('Cannot find context with specified id')) {
+      throw error;
     }
+  }
+
+  page.on('framenavigated', async (frame) => {
+    await new Promise(resolve => setTimeout(() => resolve(), 50));
+    try {
+      await instrumentGoogleSlides();
+      await instrumentGitHub();
+
+      if (!frame.parentFrame()) {
+        const url = page.url();
+        console.error(`Navigating to ${url}`);
+        const buf = new SmartBuffer();
+        buf.writeString("l");
+        buf.writeString(url);
+        sendCommand(buf.toBuffer());
+      }
+    } catch (error) {
+      ignoreExecutionContextDestroyed(error);
+    }
+  })
+
+  page.on('domcontentloaded', async () => {
+    await parseLDJsons();
+    // TODO: Is this needed when we have framenavigated?
+    // await instrumentGitHub();
+    // await instrumentGoogleSlides();
   });
 
   const refreshTrackedElements = async () => {
-    const trackedElements = await page.evaluate(getElements, "refreshInfo");
-    console.error(trackedElements);
+    const trackedElements = (await Promise.all(page.frames()
+      .filter(frame => !frame.isDetached())
+      .map(frame => frame.evaluate(getElements, "refreshInfo").catch(error => {
+        ignoreExecutionContextDestroyed(error);
+        return [];
+      })))).flat();
+    // console.error(trackedElements);
     const buf = new SmartBuffer();
     buf.writeString("hr"); // halo refresh
     buf.writeUInt32LE(trackedElements.length);
@@ -168,6 +259,38 @@ const run = async () => {
     await sendCommand(buf.toBuffer());
   });
 
+  const sendPortalDataCommand = (data) => {
+    const buf = new SmartBuffer();
+    switch (data.type) {
+      case 'img':
+      case 'canvas':
+        buf.writeString("hi");
+        break;
+      case 'pre':
+        buf.writeString("hc");
+        break;
+      case 'morph':
+        buf.writeString('hm');
+        break;
+    }
+    buf.writeStringNT(data.id);
+    buf.writeInt32LE(data.x);
+    buf.writeInt32LE(data.y);
+    buf.writeInt32LE(data.w);
+    buf.writeInt32LE(data.h);
+    switch (data.type) {
+      case 'img':
+      case 'canvas':
+        buf.writeBuffer(Buffer.from(data.data, 'base64'));
+        break;
+      case 'pre':
+      case 'morph':
+        buf.writeString(data.data);
+        break;
+    }
+    sendCommand(buf.toBuffer());
+  }
+
   // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
   console.error(`Navigating to ${url}`);
   await page.goto(url);
@@ -202,8 +325,15 @@ const run = async () => {
           if (description === undefined) {
             description = await (await field.getProperty("name")).jsonValue();
           }
+          // TODO: Boxes are too big :(
+          const box = (await field.boxModel()).content;
           return {
-            boundingBox: await field.boundingBox(),
+            boundingBox: {
+              x: box[0].x,
+              y: box[0].y,
+              width: box[2].x - box[0].x,
+              width: box[2].y - box[0].y,
+            },
             description: description,
             id: await (await page.evaluateHandle(async (element, ID_ATTRIBUTE) => {
               let id = element.getAttribute(ID_ATTRIBUTE);
@@ -360,31 +490,15 @@ const run = async () => {
             const element = elements[0];
             console.error({id: element.id, type: element.type, x: element.x, y: element.y, w: element.w, h: element.h});
 
-            const buf = new SmartBuffer();
-            switch (element.type) {
-              case 'img':
-              case 'canvas':
-                buf.writeString("hi");
-                break;
-              case 'pre':
-                buf.writeString("hc");
-                break;
-            }
-            buf.writeStringNT(element.id);
-            buf.writeInt32LE(element.x);
-            buf.writeInt32LE(element.y);
-            buf.writeInt32LE(element.w);
-            buf.writeInt32LE(element.h);
-            switch (element.type) {
-              case 'img':
-              case 'canvas':
-                buf.writeBuffer(Buffer.from(element.data, 'base64'));
-                break;
-              case 'pre':
-                buf.writeString(element.data);
-                break;
-            }
-            sendCommand(buf.toBuffer());
+            sendPortalDataCommand(element);
+            break;
+          } case 9: {
+            console.error("go back");
+            await page.goBack();
+            break;
+          } case 10: {
+            console.error("go forward");
+            await page.goForward();
             break;
           }
         }
