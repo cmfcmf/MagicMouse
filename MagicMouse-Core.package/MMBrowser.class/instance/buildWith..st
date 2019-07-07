@@ -12,9 +12,14 @@ buildWith: aBuilder
 					children: (self buildTopBarWith: aBuilder);
 					yourself.
 				aBuilder pluggablePanelSpec new
+					frame: (LayoutFrame fractions: (0@0 extent: 1@0) offsets: ((0@25) extent: (0@ 25)));
+					layout: #horizontal;
+					children: (self buildButtonBarWith: aBuilder);
+					yourself.
+				aBuilder pluggablePanelSpec new
 					wantsResizeHandles: true;
 					frame: (LayoutFrame fractions: (0@0 extent: 1@1) 
-						offsets: ((0@25) extent: (0@ -25)));
+						offsets: (0@50 extent: (0@ -50)));
 					spacing: 5;
 					children: {
 						aBuilder pluggablePanelSpec new

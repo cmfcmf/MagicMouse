@@ -28,19 +28,31 @@ buildTopBarWith: aBuilder
 			getText: #locationText;
 			setText: #changeLocation:;
 			askBeforeDiscardingEdits: false;
+			help: 'Location';
 			frame: ((LayoutFrame fractions: (0@0 extent: 0.8@1))
 				leftOffset: 50;
+				rightOffset: -50;
+				yourself);
+			yourself.
+		aBuilder pluggableButtonSpec new
+			frame: ((LayoutFrame fractions: (0.8@0 corner: 0.8@1))
+				leftOffset: -50;
 				rightOffset: -25;
 				yourself);
+			model: self;
+			label: 'B';
+			action: #addOrRemoveBookmark;
+			state: #bookmarkButtonState;
+			help: 'bookmark';
 			yourself.
 		aBuilder pluggableButtonSpec new
 			frame: ((LayoutFrame fractions: (0.8@0 corner: 0.8@1))
 				leftOffset: -25;
 				yourself);
 			model: self;
-			label: 'o';
+			label: 'R';
 			action: [browser doRefresh];
-			help: 'location';
+			help: 'refresh';
 			yourself.
 		aBuilder pluggableInputFieldSpec new 
 			model: self;
@@ -49,6 +61,6 @@ buildTopBarWith: aBuilder
 			getText: #searchText;
 			setText: #searchFor:;
 			askBeforeDiscardingEdits: false;
-			help: 'search';
+			help: 'Search with Google';
 			frame: (LayoutFrame fractions: (0.8@0 extent: 0.2@1));
 			yourself}

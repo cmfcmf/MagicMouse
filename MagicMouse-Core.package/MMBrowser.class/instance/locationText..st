@@ -5,4 +5,5 @@ locationText: aText
 	((url findString: 'https://') = 0 and: [(url findString: 'http://') = 0]) ifTrue: [
 		url := 'https://', url].
 	locationText := url.
-	self changed: #locationText
+	self changed: #locationText.
+	self changed: #bookmarkButtonState
