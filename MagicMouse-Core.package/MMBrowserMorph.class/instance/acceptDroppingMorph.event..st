@@ -1,4 +1,4 @@
-as yet unclassified
+dropping/grabbing
 acceptDroppingMorph: aMorph event: evt
 
 	| domainObject bytes position |

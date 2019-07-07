@@ -1,4 +1,4 @@
 as yet unclassified
 dispose
-	process ifNotNil: [:p | p terminate].
-	imageUpdaterProcess ifNotNil: [:p | p terminate]
+	process ifNotNil: [:p | p terminate. process := nil].
+	imageUpdaterProcess ifNotNil: [:p | p terminate. imageUpdaterProcess := nil]

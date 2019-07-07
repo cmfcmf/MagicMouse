@@ -1,4 +1,4 @@
-as yet unclassified
+dropping/grabbing
 wantsDroppedMorph: aMorph event: evt
 
 	^ (Smalltalk classNamed: #DomainObject) 
