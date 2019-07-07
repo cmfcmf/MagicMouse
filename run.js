@@ -6,10 +6,14 @@ const awaitifyStream = require('awaitify-stream');
 const { getElements } = require("./getElements");
 const uuid = require('uuid/v1');
 
-// TODO: ENCODINGS
-
 Array.prototype.flat = function() { return this.reduce((acc, x) => acc.concat(x), []); };
 Array.prototype.flatMap = function(mapper) { return this.map(mapper).flat(); };
+
+SmartBuffer.prototype.writeStringPrependSize = function(string) {
+  const buffer = Buffer.from(string, "utf8");
+  this.writeUInt32LE(buffer.length);
+  this.writeBuffer(buffer);
+}
 
 const ID_ATTRIBUTE = "data-magic-mouse-id";
 const IMAGE_FORMAT = "jpeg"; // "raw", "jpeg", "png"
@@ -148,11 +152,7 @@ const run = async () => {
     buf.writeUInt32LE(ldJsons.length);
     ldJsons.forEach(ldJson => {
       const json = JSON.stringify(ldJson);
-      // We need to get the length of the string in its encoded form, not when it is still a JS string, since
-      // "物".length == 1 whereas Buffer.from("物").length == 3.
-      const strBuf = Buffer.from(json);
-      buf.writeUInt32LE(strBuf.length);
-      buf.writeBuffer(strBuf);
+      buf.writeStringPrependSize(json);
     })
     await sendCommand(buf.toBuffer());
   }
@@ -252,9 +252,7 @@ const run = async () => {
     console.error("GIT CLONE", name, url)
     const buf = new SmartBuffer();
     buf.writeString("g");
-    const strBuf = Buffer.from(name);
-    buf.writeUInt32LE(strBuf.length);
-    buf.writeBuffer(strBuf);
+    buf.writeStringPrependSize(name);
     buf.writeString(url);
     await sendCommand(buf.toBuffer());
   });
@@ -350,14 +348,8 @@ const run = async () => {
           buf.writeInt32LE(boundingBox.y);
           buf.writeInt32LE(boundingBox.width);
           buf.writeInt32LE(boundingBox.height);
-
-          const strBuf = Buffer.from(description);
-          buf.writeUInt32LE(strBuf.length);
-          buf.writeBuffer(strBuf);
-
-          const strBuf2 = Buffer.from(id);
-          buf.writeUInt32LE(strBuf2.length);
-          buf.writeBuffer(strBuf2);
+          buf.writeStringPrependSize(description);
+          buf.writeStringPrependSize(id);
         })
         sendCommand(buf.toBuffer());
         break;
@@ -485,6 +477,7 @@ const run = async () => {
 
             const elements = await page.evaluate(getElements, "extractElements", x, y);
             if (elements.length === 0) {
+              console.error("No elements found to create a portal");
               break;
             }
             const element = elements[0];
