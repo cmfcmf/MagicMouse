@@ -1,18 +1,18 @@
 dropping/grabbing
 acceptDroppingMorph: aMorph event: evt
 
-	| domainObject bytes position |
-	domainObject := aMorph passenger.
-	
+	| position target |
 	position := evt position - self position.
+	target := (aMorph isKindOf: TransferMorph)
+		ifTrue: [aMorph passenger isText
+			ifTrue: [aMorph passenger asString]
+			ifFalse: [aMorph passenger]]
+		ifFalse: [(aMorph isSystemWindow and: [aMorph model isKindOf: StringHolder])
+			ifTrue: [aMorph model contents asString]
+			ifFalse: [aMorph]]. 
 	
-	bytes := ByteArray new: 8.
-	bytes
-		signedLongAt: 1 put: position x;
-		signedLongAt: 5 put: position y.
-	self sendCommand: $f withBuffer: bytes.
-	tmpDomainObject := aMorph passenger.
+	(Smalltalk classNamed: #DomainObject) ifNotNil: [:domainObject |
+		(target isKindOf: domainObject) ifTrue: [		
+			self droppedDomainObject: target at: position]].
 	
-	self flag: #todo.
-	"(self urlFromDomainObject: domainObject) ifNotNil: [:url | ^ self changeLocation: url].
-	(self nameFromDomainObject: domainObject) ifNotNil: [:name | ^ self searchFor: name]"
+	target isString ifTrue: [self droppedString: target at: position].

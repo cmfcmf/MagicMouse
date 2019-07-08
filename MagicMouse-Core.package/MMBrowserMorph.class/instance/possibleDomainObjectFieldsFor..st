@@ -11,7 +11,11 @@ possibleDomainObjectFieldsFor: aString
 			each ~= aString ifTrue: [names add: each asCamelCase withFirstCharacterDownshifted asSymbol]]].
 
 	names addAll: (aString caseOf: {		
-		['address line 1'] -> [#(street)]
+		['address line 1'] -> [#(street)].
+		['address1'] -> [#(street)].
+		['postcode'] -> [#(postalCode)].
+		['firstname'] -> [#(firstName)].
+		['lastname'] -> [#(lastName)].
 	} otherwise: [#()]).
 	
 	^ names

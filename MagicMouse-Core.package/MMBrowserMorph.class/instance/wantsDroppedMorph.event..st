@@ -1,7 +1,12 @@
 dropping/grabbing
 wantsDroppedMorph: aMorph event: evt
 
-	^ (Smalltalk classNamed: #DomainObject) 
-		ifNil: [false] 
-		ifNotNil: [:domainObject | aMorph class = (Smalltalk classNamed: #RTransferMorph) 
-			and: [domainObject withAllSubclasses includes: aMorph passenger class]]
+	(aMorph isKindOf: TransferMorph) ifTrue: [ | passenger |
+		passenger := aMorph passenger.
+		(Smalltalk classNamed: #DomainObject) ifNotNil: [:domainObject |
+			(passenger isKindOf: domainObject) ifTrue: [^ true]].
+		passenger isText ifTrue: [^ true]].
+	
+	(aMorph isSystemWindow and: [aMorph model isKindOf: Workspace]) ifTrue: [^ true].
+	
+	^ false

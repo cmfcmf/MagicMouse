@@ -21,6 +21,15 @@ handleFormFields: payload
 		ids add: id asString utf8ToSqueak.
 		start := start + 4 + idSize].
 	
+	"Looks like there is no form where the DomainObject was dropped."
+	fields ifEmpty: [
+		(self urlFromDomainObject: tmpDomainObject) ifNotNil: [:url | 
+			self changeLocation: url.
+			^ tmpDomainObject := nil].
+		(self nameFromDomainObject: tmpDomainObject) ifNotNil: [:name | 
+			self searchFor: name.
+			^ tmpDomainObject := nil]].
+	
 	self submorphs select: [:each | each isKindOf: HObjectFieldMorph] 
 		thenDo: [:each | self removeMorph: each].
 	fields withIndexDo: [:boundingBox :index | | description id fieldMorph |
