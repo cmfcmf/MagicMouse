@@ -170,6 +170,7 @@ const run = async () => {
   page.on('framenavigated', async (frame) => {
     await new Promise(resolve => setTimeout(() => resolve(), 50));
     try {
+      await parseLDJsons();
       await instrumentGoogleSlides();
       await instrumentGitHub();
 
@@ -184,7 +185,7 @@ const run = async () => {
     } catch (error) {
       ignoreExecutionContextDestroyed(error);
     }
-  })
+  });
 
   page.on('domcontentloaded', async () => {
     await parseLDJsons();
@@ -293,6 +294,7 @@ const run = async () => {
   console.error(`Navigating to ${url}`);
   await page.goto(url);
 
+  console.error('Starting screencast...');
   await page.startScreencast({format: IMAGE_FORMAT === "jpeg" ? "jpeg" : "png", everyNthFrame: 1});
   console.error("Recording screencast...");
 
@@ -305,7 +307,26 @@ const run = async () => {
     console.error(`Received command ${command} with payload of size ${size}.`);
 
     switch (command) {
-      case 'f':
+      case 's': {
+        const x = payload.readInt32LE();
+        const y = payload.readInt32LE();
+        const str = payload.readString();
+        console.error(`Dropped String at ${x}@${y}: "${str}"`);
+
+        await page.evaluateHandle((x, y, str) => {
+          const field = document.elementsFromPoint(x, y)
+            .find(element => ["INPUT", "TEXTAREA"].includes(element.tagName) || element.contentEditable === "true");
+          if (!field) {
+            return;
+          }
+          if (field.tagName === "INPUT") {
+            field.value = str;
+          } else {
+            field.innerText = str;
+          }
+        }, x, y, str);
+        break;
+      } case 'f':
         const x = payload.readInt32LE();
         const y = payload.readInt32LE();
         console.error(`DROPPED MORPH AT ${x}@${y}`);
@@ -313,25 +334,32 @@ const run = async () => {
         const form = await page.evaluateHandle((x, y) => document.elementsFromPoint(x, y)
           .find(element => element.tagName === "FORM"), x, y);
 
-        const fields = await form.$$("input, select");
+        const fields = (await form.jsonValue()) !== undefined ? await form.$$("input:not([type=checkbox])") /* , select */ : [];
 
         const buf = new SmartBuffer();
         buf.writeString("f");
-        buf.writeInt32LE(fields.length);
-        const inputs = await Promise.all(fields.map(async field => {
+        const inputs = (await Promise.all(fields.map(async field => {
+          if ((await (await field.getProperty('offsetParent')).jsonValue()) === null) {
+            return undefined;
+          }
           let description = await (await field.getProperty("placeholder")).jsonValue();
-          if (description === undefined) {
+          if (description === undefined || description.length === 0) {
             description = await (await field.getProperty("name")).jsonValue();
           }
-          // TODO: Boxes are too big :(
+          if (description === undefined || description.length === 0) {
+            return undefined;
+          }
           const box = (await field.boxModel()).content;
+          console.error(box);
+          const boundingBox = {
+            x: Math.round(box[0].x),
+            y: Math.round(box[0].y),
+            width: Math.round(box[2].x - box[0].x),
+            height: Math.round(box[2].y - box[0].y),
+          };
+          console.error(boundingBox);
           return {
-            boundingBox: {
-              x: box[0].x,
-              y: box[0].y,
-              width: box[2].x - box[0].x,
-              width: box[2].y - box[0].y,
-            },
+            boundingBox,
             description: description,
             id: await (await page.evaluateHandle(async (element, ID_ATTRIBUTE) => {
               let id = element.getAttribute(ID_ATTRIBUTE);
@@ -342,7 +370,8 @@ const run = async () => {
               return id;
             }, field, ID_ATTRIBUTE)).jsonValue()
           }
-        }));
+        }))).filter(input => input !== undefined);
+        buf.writeInt32LE(inputs.length);
         inputs.forEach(({boundingBox, description, id}) => {
           buf.writeInt32LE(boundingBox.x);
           buf.writeInt32LE(boundingBox.y);
