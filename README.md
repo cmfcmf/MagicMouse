@@ -8,27 +8,42 @@ MagicMouse runs on all platforms that run Squeak and Chrome, but works best and 
 
 ## Features
 
-- Browse the web with a real browser right from Squeak
-- Right-click on images and code to transform them into Morphs. I call those "Portals". Because portals are cool.
+- Browse the web with a real browser right from Squeak.
+- Watch YouTube videos in Squeak.
+- Right-click on images and code to transform them into `Morph`s. I call those "Portals". Because portals are cool.
+- Supercharged search bar:
+  - If you type something with at least one space, your search terms are googled.
+  - If you start your search with `!s `, your search terms are used to search https://squeak.org.
+- `CTRL+L` toggles fullscreen.
+- Dropped texts are typed into form fields.
+- *browseIt* any URL to open it in a browser.
+- Rick roll yourself! Send `rickRoll` to your favourite class or object to get started.
+- [Home Desktop System](https://github.com/hpi-swa-lab/home-desktop-system) integration:
+  - Extracts structured data into `DomainObject`s
+  - Searches for dropped `DomainObject`s
+  - Fills form fields with dropped `DomainObject`s
+- [Squot](https://github.com/hpi-swa/Squot) integration:
+  - When browsing GitHub repositories, displays a direct download button that opens the repository in Squot.
+- [Google Slides](https://slides.google.com) integration:
+  - Display morphs right inside your presentation! Any rectangular boxes added to the slides whose text starts with `!` will be evaluated.
+- [PolyCode](https://github.com/hpi-swa-lab/pp19-6-code-editor) integration:
+  - Display mp3s, mp4s, svgs and more inside the code editor using MagicMouse.
 
 ## Installation
 
-The installation is a bit cumbersome at the moment:
+⚠ **See below for installation instructions if you want to develop MagicMouse!** ⚠
 
 1. Install a recent version of Chrome or Chromium. MagicMouse uses the Chrome DevTools protocol to communicate with the browser and relies on the newish and experimental [`startScreencast`](https://chromedevtools.github.io/devtools-protocol/tot/Page#method-startScreencast) functionality. Chrome 74 works for me.
 2. Install Squeak 5.2+ (you probably have that already :D).
-3. Install [Node.js](https://nodejs.org) and [yarn](https://yarnpkg.com).
-4. Install MagicMouse via Metacello or the Git Browser (when using the Git Browser, make sure to install the dependencies listed in the Baseline separately).
+3. Install MagicMouse via Metacello.
 ```smalltalk
 Metacello new
 	baseline: 'MagicMouse';
 	repository: 'github://cmfcmf/MagicMouse:master/packages';
 	load.
 ```
-5. Clone this repository using your command-line Git client (**not** Squit), regardless of how you installed MagicMouse.
-6. Run `yarn install` within the cloned repository.
-7. Open the Squeak Perference Browser and change the `Git Repository Path` in the MagicMouse category to match the location of the cloned repository.
-8. You probably also want to enable the `Enable debug` property to log debug output to the Transcript.
+
+You will be prompted to download a binary that acts as a bridge between Squeak and Chrome. See the `MMPluginDownloader` for details. Binaries are stored at [Bintray](https://bintray.com/cmfcmf/MagicMouse/node-bridge/latest?tab=files#files/).
 
 ## Usage
 
@@ -63,6 +78,7 @@ There are three components to make it work: Squeak, an intermediate Node.js scri
 
 ### `run.js` <-[DevTools Protocol via WebSocket]-> Chrome
 
+If you are using the prebuilt binary (default and recommended for people who don't want to develop MagicMouse), the `run.js` script is packaged together with Node.js into a single binary.
 We use Node.js and the [puppeteer-core](https://www.npmjs.com/package/puppeteer-core) library to spawn and communicate with Chrome/Chromium. Puppeteer uses the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) to connect to Chrome. The DevTools protocol uses WebSockets for communication. The required Node.js script is located inside this repostiory and called `run.js`. It spawns the browser and then calls `startScreencast()` which instructs Chrome to regularly take a screenshot of the current window and send it to Node.js. Chrome is smart enough to only take screenshots when the page visually changes.
 
 ### Squeak <-[Pipe]-> `run.js`
@@ -91,3 +107,16 @@ Squeak communicates with the `run.js` script via `stdout`, `stdin` and `stderr`.
 ### `stderr`
 
 `stderr` is used for debugging only. The `run.js` script prints debug information to `stderr`, which is read by Squeak and written to the Transcript if the `Enable debug` option is set.
+
+## Installation for Developers
+
+The installation is a bit cumbersome at the moment:
+
+1. Install MagicMouse via Metacello like described above. This will also download necessary dependencies.
+2. Install MagicMouse via the Git Browser.
+3. Clone this repository using your command-line Git client (**not** Squit). Choose a different folder than when you cloned using Squit.
+4. Run `yarn install` within the cloned repository. You may need to install [Yarn](https://yarnpkg.com/lang/en/).
+5. Open the Squeak Perference Browser and
+   - Change the `Git Repository Path` in the MagicMouse category to match the location of the cloned repository.
+   - Check the `Do not use prebuilt binary` option.
+   - You probably also want to enable the `Enable debug` property to log debug output to the Transcript.
