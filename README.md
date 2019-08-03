@@ -22,7 +22,7 @@ The installation is a bit cumbersome at the moment:
 ```smalltalk
 Metacello new
 	baseline: 'MagicMouse';
-	repository: 'github://cmfcmf/MagicMouse:master';
+	repository: 'github://cmfcmf/MagicMouse:master/packages';
 	load.
 ```
 5. Clone this repository using your command-line Git client (**not** Squit), regardless of how you installed MagicMouse.

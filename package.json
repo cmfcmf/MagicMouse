@@ -17,5 +17,8 @@
     "puppeteer-core": "^1.14.0",
     "smart-buffer": "^4.0.2",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "pkg": "^4.4.0"
   }
 }
