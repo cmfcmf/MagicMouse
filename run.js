@@ -211,6 +211,13 @@ const run = async () => {
     }
   };
 
+  page.on("dialog", async dialog => {
+    // TODO: We could send the dialog contents to Squeak and ask the user what to do.
+    // For now, accept all dialogs, so that the page remains responsive.
+    console.error("Dialog!", dialog.defaultValue(), dialog.message(), dialog.type());
+    await dialog.accept();
+  });
+
   page.on("framenavigated", async frame => {
     await new Promise(resolve => setTimeout(() => resolve(), 50));
     try {
