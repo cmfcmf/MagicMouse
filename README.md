@@ -1,4 +1,4 @@
-<img src="logo/magicmouse.png" alt="RxJS Logo" width="120" height="120"> MagicMouse Webbrowser
+<img src="logo/magicmouse.png" alt="MagicMouse Logo" width="120" height="120"> MagicMouse Webbrowser
 ==================
 
 [![Build Status](https://travis-ci.com/cmfcmf/MagicMouse.svg?branch=master)](https://travis-ci.com/cmfcmf/MagicMouse)
