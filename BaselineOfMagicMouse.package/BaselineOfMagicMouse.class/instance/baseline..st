@@ -12,8 +12,10 @@ baseline: spec
 					className: 'ConfigurationOfOSProcess';
 					repository: 'http://www.squeaksource.com/MetacelloRepository';
 					versionString: #'stable'];
-			package: 'MagicMouse-Core' with: [spec requires: #('Cmfcmf' 'OSProcess')].
+			package: 'MagicMouse-Core' with: [spec requires: #('Cmfcmf' 'OSProcess')];
+			package: 'MagicMouse-Tests' with: [spec requires: #('MagicMouse-Core')].
 		spec
 			group: 'default' with: #('MagicMouse-Core');
+			group: 'tests' with: #('MagicMouse-Tests');
 			yourself];    
 	yourself
