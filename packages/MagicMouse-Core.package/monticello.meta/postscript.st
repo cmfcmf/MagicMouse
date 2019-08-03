@@ -1,2 +1,1 @@
-(PackageInfo named: 'MagicMouse-Core') postscript: '
-self flag: #todo "Load binaries"'!
+(PackageInfo named: 'MagicMouse-Core') postscript: 'MMPluginDownloader downloadIfConfirmed'!
