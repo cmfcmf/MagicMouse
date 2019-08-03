@@ -1,10 +1,11 @@
 {
 	"class" : {
 		"chromeProfilePath" : "cmfcmf 6/30/2019 19:54",
-		"debugEnabled" : "cf 5/1/2019 10:42",
-		"debugNodejs" : "cmfcmf 7/2/2019 08:31",
+		"debugEnabled" : "cmfcmf 8/3/2019 16:42",
+		"debugNodejs" : "cmfcmf 8/3/2019 16:50",
+		"doNotUsePrebuiltBinary" : "cmfcmf 8/3/2019 16:45",
 		"eventTypeCode:" : "cmfcmf 7/2/2019 08:22",
-		"gitRepositoryPath" : "cf 5/1/2019 10:44",
+		"gitRepositoryPath" : "cmfcmf 8/3/2019 16:44",
 		"initialize" : "cmfcmf 6/19/2019 19:58",
 		"open" : "cmfcmf 6/30/2019 13:11",
 		"openOn:" : "cmfcmf 6/30/2019 13:11",
@@ -17,7 +18,7 @@
 		"acceptDroppingMorph:event:" : "cmfcmf 7/8/2019 15:53",
 		"assertNodeScriptExists" : "cf 4/22/2019 11:26",
 		"changeLocation:" : "cmfcmf 6/19/2019 20:17",
-		"connect:" : "cmfcmf 7/7/2019 10:57",
+		"connect:" : "cmfcmf 8/3/2019 16:55",
 		"contentOfField:changedTo:" : "cmfcmf 7/3/2019 09:20",
 		"delete" : "cf 4/22/2019 12:46",
 		"dispose" : "cmfcmf 7/7/2019 11:03",

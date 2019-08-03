@@ -6,6 +6,7 @@
 		"ChromeProfilePath",
 		"DebugEnabled",
 		"DebugNodejs",
+		"DoNotUsePrebuiltBinary",
 		"GitRepositoryPath",
 		"PortalsOnRightClick",
 		"RunChromeHeadless" ],

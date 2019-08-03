@@ -1,7 +1,7 @@
 as yet unclassified
 debugEnabled
 
-	<preference: 'Enable debug'
+	<preference: 'Debug to Transcript'
 		category: 'MagicMouse'
 		description: 'Print debug output to the Transcript'
 		type: #Boolean>

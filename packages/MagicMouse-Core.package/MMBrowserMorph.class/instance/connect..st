@@ -1,16 +1,23 @@
 as yet unclassified
 connect: aUrl
-	| path |
-	self assertNodeScriptExists.
-	path := self class gitRepositoryPath, FileDirectory slash, 'run.js'.
-	
+	| path arguments |
 	process := MMProcessWrapper newForOS.
 	self class debugEnabled ifTrue: [process enableDebug].
-	process startNodeScript: path 
-		arguments: {aUrl. viewportSize x. viewportSize y.
-			self class runChromeHeadless ifTrue: ['headless'] ifFalse: ['windowed'].
-			self class chromeProfilePath}
-		nodeArguments: (self class debugNodejs ifTrue: [{'--inspect'}] ifFalse: [{}]).
+	arguments := {aUrl. viewportSize x. viewportSize y.
+		self class runChromeHeadless ifTrue: ['headless'] ifFalse: ['windowed'].
+		self class chromeProfilePath}.
+	self class doNotUsePrebuiltBinary
+		ifTrue: [
+			self assertNodeScriptExists.
+			path := self class gitRepositoryPath, FileDirectory slash, 'run.js'.
+			process
+				startNodeScript: path 
+				arguments: arguments
+				nodeArguments: (self class debugNodejs ifTrue: [{'--inspect'}] ifFalse: [{}])]
+		ifFalse: [
+			self halt.
+			path := (FileDirectory default / MMPluginDownloader filenameForCurrentPlatform) fullName.
+			process startCommand: path withArguments: arguments].
 	
 	location := aUrl.
 

@@ -1,8 +1,8 @@
 as yet unclassified
 debugNodejs
 
-	<preference: 'Enable Node.js debugging'
+	<preference: 'Debug Node.js'
 		category: 'MagicMouse'
-		description: 'Start Node.js with the --inspect argument'
+		description: 'ONLY FOR DEVELOPMENT. Start Node.js with the --inspect argument'
 		type: #Boolean>
 	^ DebugNodejs ifNil: [false]
