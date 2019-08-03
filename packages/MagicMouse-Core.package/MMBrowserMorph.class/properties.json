@@ -8,6 +8,7 @@
 		"DebugNodejs",
 		"DoNotUsePrebuiltBinary",
 		"GitRepositoryPath",
+		"Logo",
 		"PortalsOnRightClick",
 		"RunChromeHeadless" ],
 	"commentStamp" : "cmfcmf 8/3/2019 19:11",
