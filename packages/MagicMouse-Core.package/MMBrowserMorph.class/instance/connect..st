@@ -15,7 +15,6 @@ connect: aUrl
 				arguments: arguments
 				nodeArguments: (self class debugNodejs ifTrue: [{'--inspect'}] ifFalse: [{}])]
 		ifFalse: [
-			self halt.
 			path := (FileDirectory default / MMPluginDownloader filenameForCurrentPlatform) fullName.
 			process startCommand: path withArguments: arguments].
 	
