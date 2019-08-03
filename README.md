@@ -7,6 +7,11 @@ MagicMouse is a webbrowser for [Squeak](https://squeak.org). It uses Chrome/Chro
 
 MagicMouse runs on all platforms that run Squeak and Chrome, but works best and is most tested on Windows.
 
+| | |
+|-|-|
+| ![Screenshot of Google](images/google.png) | ![Screenshot of YouTube](images/youtube.png) |
+| ![Screenshot of SqueakJS](images/squeakjs.png) | ![Screenshot of Lively Kernel](images/lively.png) |
+
 ## Features
 
 - Browse the web with a real browser right from Squeak.
