@@ -12,7 +12,8 @@ baseline: spec
 					className: 'ConfigurationOfOSProcess';
 					repository: 'http://www.squeaksource.com/MetacelloRepository';
 					versionString: #'stable'];
-			package: 'MagicMouse-Core' with: [spec requires: #('Cmfcmf' 'OSProcess')];
+			package: 'JSON' with: [spec repository: 'http://www.squeaksource.com/JSON'];
+			package: 'MagicMouse-Core' with: [spec requires: #('Cmfcmf' 'OSProcess' 'JSON')];
 			package: 'MagicMouse-Tests' with: [spec requires: #('MagicMouse-Core')].
 		spec
 			group: 'default' with: #('MagicMouse-Core');
