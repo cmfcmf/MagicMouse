@@ -5,6 +5,7 @@
     "email": "cmfcmf.flach@gmail.com"
   },
   "scripts": {
+    "build": "pkg --targets node10-win,node10-macos,node10-linux --output ./build/magicmouse ./run.js",
     "postinstall": "patch-package"
   },
   "dependencies": {
