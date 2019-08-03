@@ -1,4 +1,9 @@
 {
+  "license": "MIT",
+  "author": {
+    "name": "Christian Flach",
+    "email": "cmfcmf.flach@gmail.com"
+  },
   "scripts": {
     "postinstall": "patch-package"
   },

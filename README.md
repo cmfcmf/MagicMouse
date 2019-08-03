@@ -1,5 +1,7 @@
 # MagicMouse Browser
 
+[![Build Status](https://travis-ci.com/cmfcmf/MagicMouse.svg?branch=master)](https://travis-ci.com/cmfcmf/MagicMouse)
+
 MagicMouse is a webbrowser for [Squeak](https://squeak.org). It uses Chrome/Chromium under the hood to render websites and displays them as ImageMorphs right inside Squeak.
 
 MagicMouse runs on all platforms that run Squeak and Chrome, but works best and is most tested on Windows.
@@ -14,7 +16,7 @@ MagicMouse runs on all platforms that run Squeak and Chrome, but works best and 
 The installation is a bit cumbersome at the moment:
 
 1. Install a recent version of Chrome or Chromium. MagicMouse uses the Chrome DevTools protocol to communicate with the browser and relies on the newish and experimental [`startScreencast`](https://chromedevtools.github.io/devtools-protocol/tot/Page#method-startScreencast) functionality. Chrome 74 works for me.
-2. Install Squeak 5 (you probably have that already :D).
+2. Install Squeak 5.2+ (you probably have that already :D).
 3. Install [Node.js](https://nodejs.org) and [yarn](https://yarnpkg.com).
 4. Install MagicMouse via Metacello or the Git Browser (when using the Git Browser, make sure to install the dependencies listed in the Baseline separately).
 ```smalltalk
@@ -36,7 +38,7 @@ In general, be advised that there is little to no error handling in place right 
 
 ### `MMBrowserMorph`
 
-This ImageMorph displays a website. It intercepts keyboard and mouse events and sends them to Chrome. 
+This ImageMorph displays a website. It intercepts keyboard and mouse events and sends them to Chrome.
 Open it by using the `open` or `openOn:` messages:
 
 ```smalltalk
@@ -83,7 +85,7 @@ Squeak communicates with the `run.js` script via `stdout`, `stdin` and `stderr`.
 - mouse movement, mouse events
 - keyboard events
 - viewport size changes
-- portal creation requests 
+- portal creation requests
 - location change requests
 
 ### `stderr`
