@@ -8,10 +8,10 @@ index c994de5..fbc9d65 100644
      WorkerDestroyed: 'workerdestroyed',
 +    ScreencastFrame: 'screencastframe'
    },
-
+ 
    Browser: {
 diff --git a/node_modules/puppeteer-core/lib/Page.js b/node_modules/puppeteer-core/lib/Page.js
-index 0a8acb5..5610caa 100644
+index 0a8acb5..64d5558 100644
 --- a/node_modules/puppeteer-core/lib/Page.js
 +++ b/node_modules/puppeteer-core/lib/Page.js
 @@ -124,6 +124,7 @@ class Page extends EventEmitter {
@@ -25,7 +25,7 @@ index 0a8acb5..5610caa 100644
 @@ -176,6 +177,54 @@ class Page extends EventEmitter {
      });
    }
-
+ 
 +  /**
 +   * @param {!Object=} options
 +   * @return {!Promise}

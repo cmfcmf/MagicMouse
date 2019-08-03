@@ -12,7 +12,7 @@ jobs:
     language: node_js
     os: linux
     node_js:
-    - "10"
+    - "8"
     env:
       PKG_CACHE_PATH: node-cache
       JFROG_CLI_OFFER_CONFIG: false
