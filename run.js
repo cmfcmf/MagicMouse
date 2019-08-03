@@ -203,7 +203,7 @@ const run = async () => {
       })))).flat();
     // console.error(trackedElements);
     const buf = new SmartBuffer();
-    buf.writeString("hr"); // halo refresh
+    buf.writeString("hr"); // portal refresh
     buf.writeUInt32LE(trackedElements.length);
     trackedElements.forEach(element => buf
       .writeStringNT(element.id)
@@ -512,7 +512,7 @@ const run = async () => {
             // These are relative to the visible part of the page, not the top left corner
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
-            console.error(`Halo event at ${x},${y}`);
+            console.error(`Portal event at ${x},${y}`);
 
             let elements;
             try {
