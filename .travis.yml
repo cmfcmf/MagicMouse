@@ -1,35 +1,30 @@
 sudo: false
+language: smalltalk
+os:
+- linux
+- osx
+smalltalk:
+- Squeak64-5.2
+- Squeak64-trunk
 jobs:
   include:
-  - stage: test
-    language: smalltalk
-    os:
-    - linux
-    - osx
-    smalltalk:
-    - Squeak64-5.2
-    - Squeak64-trunk
   - stage: deploy
     language: node_js
     os: linux
     node_js:
     - "10"
     env:
-      PKG_CACHE_PATH=node-cache
+      PKG_CACHE_PATH: node-cache
+      JFROG_CLI_OFFER_CONFIG: false
     cache:
       yarn: true
       directories:
       - node-cache
-    script: skip
-    before_deploy:
+    install:
     - yarn install
+    script:
     - yarn build
-    - node createBintrayDescriptor.js latest > bintray.json
-    deploy:
-      provider: bintray
-      file: bintray.json
-      user: cmfcmf
-      key:
-        secure: "i5sj3GahcRSrdos0SezqS0MHs5Tp+vz9YpEe3GUtfaracPI1BdV2VQ1+0imSmBS5V4gztbRUbb6T0LeiKpeYZ1EOoxnM1Eg6U9XTjTZtPCduDfksDws+BjkFOFo91WaIoYIYvWmjvyq1OG7KoMS1E2Fg7t1LQGPLtVDOMusvD5QLjlNU4qzOkqZSbilkamNPAKQWyaNGpIjaq0th7kHtn7s5qQi+oCzjHC6eilK4ta7DxadXRa+/89PQJUhlK92/HMYftQh3OsZ2RstLKXkl9LhVtVVr+zzFNiduezjRQ/AJemvtLJpJxPDHzUjqe2L1rRZqgLOGhCvvIswlsxx0W0tRXeG75yXNFU4cj3zDov3e269j1VyD9ylMamKKXDP1Ionf+wix+47tJ6OHluPsm6SOZnVbDWqyeCxQXEROAdYDwty1HIq2S1TnZGGNzfCRDlyK59sA3oMmXABJEX8DuSxYQlncYM+u1tJd9JNIF5HzQHSj8+LgHU3T0J/7bZcgB/Dn3g3dx2aZpLLq7xs/MMdC19t8IDdCxKq492Wmm8UQpq2HL5trO02YaXrn3dYHddhej3tDD9g+pkfouSIf+vVAMyhieWHz9ej0qHjktwRgnBDUqqb2BhvVhUUdiJ0Kc+b869X9lIsERUjl7kvQmmIhgWl6IyPkKWT4l/sDbCs="
-      skip_cleanup: true
-      on: master
+    after_script:
+    - yarn global add jfrog-cli-go
+    - jfrog bt version-create --user cmfcmf --key $BINTRAY_KEY                                cmfcmf/MagicMouse/node-bridge/latest || true
+    - jfrog bt upload         --user cmfcmf --key $BINTRAY_KEY --publish --override ./build/* cmfcmf/MagicMouse/node-bridge/latest
