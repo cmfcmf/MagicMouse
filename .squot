@@ -1,5 +1,5 @@
 OrderedDictionary {
-	'BaselineOfMagicMouse.package' : #SquotCypressCodeSerializer,
-	'MagicMouse-Core.package' : #SquotCypressCodeSerializer,
-	'MagicMouse-Tests.package' : #SquotCypressCodeSerializer
+	'packages/BaselineOfMagicMouse.package' : #SquotCypressCodeSerializer,
+	'packages/MagicMouse-Core.package' : #SquotCypressCodeSerializer,
+	'packages/MagicMouse-Tests.package' : #SquotCypressCodeSerializer
 }

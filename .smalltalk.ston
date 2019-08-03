@@ -1,0 +1,10 @@
+SmalltalkCISpec {
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'MagicMouse',
+      #directory : 'packages',
+      #platforms : [ #squeak ],
+      #load : 'tests'
+    }
+  ]
+}
