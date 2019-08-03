@@ -8,24 +8,24 @@ index c994de5..fbc9d65 100644
      WorkerDestroyed: 'workerdestroyed',
 +    ScreencastFrame: 'screencastframe'
    },
-
+ 
    Browser: {
 diff --git a/node_modules/puppeteer-core/lib/Page.js b/node_modules/puppeteer-core/lib/Page.js
-index 2f9510a..774fb8e 100644
+index 0a8acb5..5610caa 100644
 --- a/node_modules/puppeteer-core/lib/Page.js
 +++ b/node_modules/puppeteer-core/lib/Page.js
-@@ -140,6 +140,7 @@ class Page extends EventEmitter {
-     client.on('Inspector.targetCrashed', event => this._onTargetCrashed());
+@@ -124,6 +124,7 @@ class Page extends EventEmitter {
      client.on('Performance.metrics', event => this._emitMetrics(event));
      client.on('Log.entryAdded', event => this._onLogEntryAdded(event));
+     client.on('Page.fileChooserOpened', event => this._onFileChooser(event));
 +    client.on('Page.screencastFrame', event => this.emit(Events.Page.ScreencastFrame, event));
      this._target._isClosedPromise.then(() => {
        this.emit(Events.Page.Close);
        this._closed = true;
-@@ -825,6 +826,54 @@ class Page extends EventEmitter {
-     await this._client.send('Network.setCacheDisabled', {cacheDisabled: !enabled});
+@@ -176,6 +177,54 @@ class Page extends EventEmitter {
+     });
    }
-
+ 
 +  /**
 +   * @param {!Object=} options
 +   * @return {!Promise}
@@ -41,17 +41,17 @@ index 2f9510a..774fb8e 100644
 +      console.assert(options.quality >= 0 && options.quality <= 100, 'Expected options.quality to be between 0 and 100 (inclusive), got ' + options.quality);
 +    }
 +    if (options.maxWidth) {
-+      console.assert(typeof options.maxWidth === 'number', 'Expected options.maxWidth to be a number but found ' + (typeof options.maxWidth));
++      console.assert(typeof options.maxWidth === 'number', 'Expected options.maxWidth to be a number but found ' + (typeof ptions.maxWidth));
 +      console.assert(Number.isInteger(options.maxWidth), 'Expected options.maxWidth to be an integer');
 +      console.assert(options.maxHeight >= 0, 'Expected options.maxWidth to be greater than 0, got ' + options.maxWidth);
 +    }
 +    if (options.maxHeight) {
-+      console.assert(typeof options.maxHeight === 'number', 'Expected options.maxHeight to be a number but found ' + (typeof options.maxHeight));
++      console.assert(typeof options.maxHeight === 'number', 'Expected options.maxHeight to be a number but found ' + (typeof ptions.maxHeight));
 +      console.assert(Number.isInteger(options.maxHeight), 'Expected options.maxHeight to be an integer');
 +      console.assert(options.maxHeight >= 0, 'Expected options.maxHeight to be greater than 0, got ' + options.maxHeight);
 +    }
 +    if (options.everyNthFrame) {
-+      console.assert(typeof options.everyNthFrame === 'number', 'Expected options.everyNthFrame to be a number but found ' + (typeof options.everyNthFrame));
++      console.assert(typeof options.everyNthFrame === 'number', 'Expected options.everyNthFrame to be a number but found ' + (typeof ptions.everyNthFrame));
 +      console.assert(Number.isInteger(options.everyNthFrame), 'Expected options.everyNthFrame to be an integer');
 +      console.assert(options.everyNthFrame >= 0, 'Expected options.everyNthFrame to be greater than 0, got ' + options.everyNthFrame);
 +    }
@@ -75,5 +75,5 @@ index 2f9510a..774fb8e 100644
 +  }
 +
    /**
-    * @param {!ScreenshotOptions=} options
-    * @return {!Promise<!Buffer|!String>}
+    * @param {!{longitude: number, latitude: number, accuracy: (number|undefined)}} options
+    */

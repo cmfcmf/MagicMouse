@@ -41,7 +41,7 @@ MagicMouse runs on all platforms that run Squeak and Chrome, but works best and 
 
 ⚠ **See below for installation instructions if you want to develop MagicMouse!** ⚠
 
-1. Install a recent version of Chrome or Chromium. MagicMouse uses the Chrome DevTools protocol to communicate with the browser and relies on the newish and experimental [`startScreencast`](https://chromedevtools.github.io/devtools-protocol/tot/Page#method-startScreencast) functionality. Chrome 74 works for me.
+1. Install a recent version of Chrome or Chromium. MagicMouse uses the Chrome DevTools protocol to communicate with the browser and relies on the newish and experimental [`startScreencast`](https://chromedevtools.github.io/devtools-protocol/tot/Page#method-startScreencast) functionality. Chrome 76 works for me.
 2. Install Squeak 5.2+ (you probably have that already :D).
 3. Install MagicMouse via Metacello.
 ```smalltalk
