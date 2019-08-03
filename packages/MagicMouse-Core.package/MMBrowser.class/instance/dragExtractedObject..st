@@ -1,4 +1,4 @@
-as yet unclassified
+extracted objects
 dragExtractedObject: aNumber
 
 	| domainObject |

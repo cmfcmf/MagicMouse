@@ -1,4 +1,4 @@
-as yet unclassified
+building
 getBrowserMorph
 	browser isConnected ifFalse: [
 		browser connect: self locationText. 

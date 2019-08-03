@@ -1,4 +1,4 @@
-as yet unclassified
+extracted objects
 selectedExtractedObject
 
 	^ selectedExtractedObject

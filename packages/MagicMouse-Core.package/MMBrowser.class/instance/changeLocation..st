@@ -1,4 +1,4 @@
-as yet unclassified
+public
 changeLocation: aText
 
 	self locationText: aText.

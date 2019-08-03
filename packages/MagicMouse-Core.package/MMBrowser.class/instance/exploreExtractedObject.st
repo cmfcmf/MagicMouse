@@ -1,4 +1,4 @@
-as yet unclassified
+extracted objects
 exploreExtractedObject
 
 	self selectedExtractedObject ifNotNil: [:object | object explore]
