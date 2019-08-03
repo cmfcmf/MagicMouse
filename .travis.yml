@@ -1,27 +1,24 @@
 language: smalltalk
 sudo: false
-
 os:
-  - linux
-  - osx
-
+- linux
+- osx
 smalltalk:
-  - Squeak-5.2
-  - Squeak64-trunk
-
+- Squeak-5.2
+- Squeak64-trunk
 jobs:
   include:
-    - stage: deploy
-      os: linux
-      before_deploy:
-        - yarn install
-        - yarn build
-        - node createBintrayDescriptor.js $TRAVIS_COMMIT > bintray.json
-      deploy:
-        provider: bintray
-        file: "bintray.json"
-        user: "cmfcmf"
-        key:
-          secure: "krJoPmg5NYcnlrPM0jEeSWfuYwAhWep2i1e63VJsia7+hQltOln/6w6eu/9mUVt1LD9q0xse8oD2LNGjzAkMt/YUmFej7xW9fd+M0Fyhq0wYN335ViX5O5vkOi/uTFmEP6nYPMC9fQ8k7KfLiVSv8raLZRS+mACk+nO4CCYJ4xntrttUFjh5aiqsH+wlToZMgG2obHYXv3L9W89+3Bkp7JvBs0RFe6L0SpnE9mJ0mdmXHQCKndbIpFVl40mMgCw5iaG7v2NZRHPH987UzigFlzsQ6mJcDn9LXASwAPcFKl+mxQQlhHODvnzO68QUNgi40wWeVzc5Uzt3G2Ur45sTe1bdokhz0cH6fjCTBZt718DD1dWme8KXfoe8IY0CV5G0l7RS2erzjYlCI+vlvXLetNvESZdw2gaJA+vzIPYI7k4o69TMyNvWGny5dtsZRPymMOkn4Hq17tswTuniIm6c38PzwGRtLL/toa0n/rHC7LL4aLH+4MojCBn1pDmcWPyebDszLQapu/Yh20kqrlKzdv2/icugI3F8xhStkVRmc0wIBXRHcc+Qsxa50AHu7gNUsYcrIe2Y1V4T5aL0AbPTFt50IXrlKYDcu8zPBctm4AIyowBw5o/d4BNXzlTh8WyJAjq9hOQmipX1bE0Ek5TDp1hsC1QK0Z/xiqu2cXNqBMg="
-        skip_cleanup: true
-        on: master
+  - stage: deploy
+    os: linux
+    before_deploy:
+    - yarn install
+    - yarn build
+    - node createBintrayDescriptor.js latest > bintray.json
+    deploy:
+      provider: bintray
+      file: bintray.json
+      user: cmfcmf
+      key:
+        secure: n/pEo+ZarM6CyTxgISJqCyP5B0F7UvIEiImSdlb/xv1Sr9nvbr5mxCw/VRBzJmSVlpascdCpBpll0viOOyiBDGvJ2/DGfagaqlHjQeK2WMxD/IC//wUgAzC09rmi44Mo8eO+GzfUa0DHPGZ63NrkTz8wqpE9EisSQLMXHdlFETbqsABKLw9hAo42bo75DyyeNpy5W5X2LUWmhBT6cR8ChCV2OiEh3YSl97fsUV99r6rdbn2L5CiWU8Elt92hOnQkdYUNXQum0OJN8oU6FbA9M+rSHr9HVb+UuF0widuKJtv3BUmLVWazp68+aunCRTkyvg8QjjnqsWjuBOAVqUwAK/AoENjCsAdXYxNXEqaLX7ArQbmzpanUF7TbotV/wWYgq5wzRFt4jTgdqBFqfNMgDIUI0Db5blGlHMKRRZJNCxACdl9LYcWTShKPi9hyi58XQ3EsVtQdM5hzoXTWjnM5O2IENlHwFc8XEfM5VaWP4i7qxCrbnjdYQ+s3mfvwXfKi/GT5/zNu4oo/IhATtQcnT5n+EszgBEPI6aMH5iSGoMmkkSN0Xy+XZgp5lToFdtJg8GJxf7kYt4lTnkvGAJmsMYAuAcVHbX40oFQfMdRAS7JYYygUF8LzhQ/7uewu3An4jNtRNVl6QcTu+9bXva9dQSmwOWwmG5RPk2NzrFCePQg=
+      skip_cleanup: true
+      on: master
