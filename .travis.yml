@@ -1,15 +1,26 @@
-language: smalltalk
 sudo: false
-os:
-- linux
-- osx
-smalltalk:
-- Squeak-5.2
-- Squeak64-trunk
 jobs:
   include:
+  - stage: test
+    language: smalltalk
+    os:
+    - linux
+    - osx
+    smalltalk:
+    - Squeak64-5.2
+    - Squeak64-trunk
   - stage: deploy
+    language: node_js
     os: linux
+    node_js:
+    - "10"
+    env:
+      PKG_CACHE_PATH=node-cache
+    cache:
+      yarn: true
+      directories:
+      - node-cache
+    script: skip
     before_deploy:
     - yarn install
     - yarn build
@@ -19,6 +30,6 @@ jobs:
       file: bintray.json
       user: cmfcmf
       key:
-        secure: n/pEo+ZarM6CyTxgISJqCyP5B0F7UvIEiImSdlb/xv1Sr9nvbr5mxCw/VRBzJmSVlpascdCpBpll0viOOyiBDGvJ2/DGfagaqlHjQeK2WMxD/IC//wUgAzC09rmi44Mo8eO+GzfUa0DHPGZ63NrkTz8wqpE9EisSQLMXHdlFETbqsABKLw9hAo42bo75DyyeNpy5W5X2LUWmhBT6cR8ChCV2OiEh3YSl97fsUV99r6rdbn2L5CiWU8Elt92hOnQkdYUNXQum0OJN8oU6FbA9M+rSHr9HVb+UuF0widuKJtv3BUmLVWazp68+aunCRTkyvg8QjjnqsWjuBOAVqUwAK/AoENjCsAdXYxNXEqaLX7ArQbmzpanUF7TbotV/wWYgq5wzRFt4jTgdqBFqfNMgDIUI0Db5blGlHMKRRZJNCxACdl9LYcWTShKPi9hyi58XQ3EsVtQdM5hzoXTWjnM5O2IENlHwFc8XEfM5VaWP4i7qxCrbnjdYQ+s3mfvwXfKi/GT5/zNu4oo/IhATtQcnT5n+EszgBEPI6aMH5iSGoMmkkSN0Xy+XZgp5lToFdtJg8GJxf7kYt4lTnkvGAJmsMYAuAcVHbX40oFQfMdRAS7JYYygUF8LzhQ/7uewu3An4jNtRNVl6QcTu+9bXva9dQSmwOWwmG5RPk2NzrFCePQg=
+        secure: "i5sj3GahcRSrdos0SezqS0MHs5Tp+vz9YpEe3GUtfaracPI1BdV2VQ1+0imSmBS5V4gztbRUbb6T0LeiKpeYZ1EOoxnM1Eg6U9XTjTZtPCduDfksDws+BjkFOFo91WaIoYIYvWmjvyq1OG7KoMS1E2Fg7t1LQGPLtVDOMusvD5QLjlNU4qzOkqZSbilkamNPAKQWyaNGpIjaq0th7kHtn7s5qQi+oCzjHC6eilK4ta7DxadXRa+/89PQJUhlK92/HMYftQh3OsZ2RstLKXkl9LhVtVVr+zzFNiduezjRQ/AJemvtLJpJxPDHzUjqe2L1rRZqgLOGhCvvIswlsxx0W0tRXeG75yXNFU4cj3zDov3e269j1VyD9ylMamKKXDP1Ionf+wix+47tJ6OHluPsm6SOZnVbDWqyeCxQXEROAdYDwty1HIq2S1TnZGGNzfCRDlyK59sA3oMmXABJEX8DuSxYQlncYM+u1tJd9JNIF5HzQHSj8+LgHU3T0J/7bZcgB/Dn3g3dx2aZpLLq7xs/MMdC19t8IDdCxKq492Wmm8UQpq2HL5trO02YaXrn3dYHddhej3tDD9g+pkfouSIf+vVAMyhieWHz9ej0qHjktwRgnBDUqqb2BhvVhUUdiJ0Kc+b869X9lIsERUjl7kvQmmIhgWl6IyPkKWT4l/sDbCs="
       skip_cleanup: true
       on: master
