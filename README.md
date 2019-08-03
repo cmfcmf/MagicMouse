@@ -18,6 +18,8 @@ MagicMouse runs on all platforms that run Squeak and Chrome, but works best and 
 - Dropped texts are typed into form fields.
 - *browseIt* any URL to open it in a browser.
 - Rick roll yourself! Send `rickRoll` to your favourite class or object to get started.
+- Open browsers reconnect after resuming Squeak.
+- Create and browse bookmarks.
 - [Home Desktop System](https://github.com/hpi-swa-lab/home-desktop-system) integration:
   - Extracts structured data into `DomainObject`s
   - Searches for dropped `DomainObject`s

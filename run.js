@@ -388,6 +388,9 @@ const run = async () => {
         console.error(`Update Text: ${id} ${text}`);
         await page.evaluate((id, text, ID_ATTRIBUTE) => {
           const element = document.querySelector(`[${ID_ATTRIBUTE}="${id}"]`);
+          if (!element) {
+            return;
+          }
           if (element.tagName === "INPUT") {
             element.value = text;
           } else if (element.tagName === "SELECT") {
@@ -406,7 +409,11 @@ const run = async () => {
       case 'l':
         const url = payload.readString();
         console.error(`Navigating to ${url}`);
-        await page.goto(url);
+        try {
+          await page.goto(url);
+        } catch (error) {
+          console.error(error);
+        }
         break;
       case 'e':
         // TODO check read boundaries for each event type
@@ -483,10 +490,13 @@ const run = async () => {
               keyName = squeakKeyString;
             }
             console.error('Typing', squeakKeyString, modifiers);
-            await Promise.all(modifiers.map(key => page.keyboard.down(key)));
-            await page.keyboard.press(keyName);
-            await Promise.all(modifiers.map(key => page.keyboard.up(key)));
-
+            try {
+              await Promise.all(modifiers.map(key => page.keyboard.down(key)));
+              await page.keyboard.press(keyName);
+              await Promise.all(modifiers.map(key => page.keyboard.up(key)));
+            } catch (error) {
+              console.error(error);
+            }
             break;
           case 6: {
             const x = payload.readUInt32LE();
@@ -504,7 +514,13 @@ const run = async () => {
             const y = payload.readUInt32LE();
             console.error(`Halo event at ${x},${y}`);
 
-            const elements = await page.evaluate(getElements, "extractElements", x, y);
+            let elements;
+            try {
+              elements = await page.evaluate(getElements, "extractElements", x, y);
+            } catch (error) {
+              elements = [];
+              console.error(error);
+            }
             if (elements.length === 0) {
               console.error("No elements found to create a portal");
               break;
