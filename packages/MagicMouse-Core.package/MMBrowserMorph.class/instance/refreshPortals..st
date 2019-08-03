@@ -1,4 +1,4 @@
-as yet unclassified
+<- from chrome
 refreshPortals: portalInfos
 
 	self portalMorphs keysAndValuesDo: [:id :morph | | isMyChild isOnPage |

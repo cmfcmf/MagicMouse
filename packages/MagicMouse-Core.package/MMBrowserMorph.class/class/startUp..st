@@ -1,4 +1,4 @@
-as yet unclassified
+system startup
 startUp: resuming
 
 	resuming ifTrue: [

@@ -1,4 +1,4 @@
-as yet unclassified
+<- from chrome
 movePortal: id rect: rect
 
 	self portalMorphs at: id ifPresent: [:morph |

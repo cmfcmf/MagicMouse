@@ -1,4 +1,4 @@
-as yet unclassified
+preferences
 debugEnabled
 
 	<preference: 'Debug to Transcript'

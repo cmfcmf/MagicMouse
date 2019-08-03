@@ -1,5 +1,6 @@
-as yet unclassified
+<- from chrome
 handleStructuredData: payload
+
 	| start structuredData |
 	start := 6.
 	structuredData := OrderedCollection new.

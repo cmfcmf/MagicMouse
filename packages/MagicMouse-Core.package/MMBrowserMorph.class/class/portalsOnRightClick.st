@@ -1,4 +1,4 @@
-as yet unclassified
+preferences
 portalsOnRightClick
 
 	<preference: 'Create portals on right click'

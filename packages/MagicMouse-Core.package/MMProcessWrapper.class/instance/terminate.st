@@ -1,3 +1,4 @@
-as yet unclassified
+stopping
 terminate
+
 	self subclassResponsibility

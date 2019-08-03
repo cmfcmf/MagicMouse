@@ -1,7 +1,8 @@
-as yet unclassified
+starting
 startCommand: command withArguments: arguments
+
 	|  startupInfo pipe commandLine |
-	self flag: #fixme. "Properly escape arguments?"
+	self flag: #todo. "Properly escape arguments?"
 	commandLine := command, ' ', ((arguments collect: [:arg | '"', arg, '"']) joinSeparatedBy: ' ').
 	
 	pipe := CMFWinFFI makePipe: false.

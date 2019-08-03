@@ -1,4 +1,4 @@
-as yet unclassified
+filenames
 filenameForCurrentPlatform
 
 	^ self filenameDict at: Smalltalk platformName

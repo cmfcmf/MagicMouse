@@ -1,3 +1,4 @@
-as yet unclassified
+stdin
 stdinPutUint32: anInteger
+
 	self subclassResponsibility

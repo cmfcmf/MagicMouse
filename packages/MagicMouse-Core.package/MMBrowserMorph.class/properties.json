@@ -10,7 +10,7 @@
 		"GitRepositoryPath",
 		"PortalsOnRightClick",
 		"RunChromeHeadless" ],
-	"commentStamp" : "",
+	"commentStamp" : "cmfcmf 8/3/2019 19:11",
 	"instvars" : [
 		"process",
 		"viewportSize",

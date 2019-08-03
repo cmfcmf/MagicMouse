@@ -1,5 +1,6 @@
 building
 getBrowserMorph
+
 	browser isConnected ifFalse: [
 		browser connect: self locationText. 
 		browser layoutFrame: (LayoutFrame fractions: (0@0 extent: 1@1)).

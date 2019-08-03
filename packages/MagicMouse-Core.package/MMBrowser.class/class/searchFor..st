@@ -1,5 +1,6 @@
-as yet unclassified
+instance creation
 searchFor: aString
+
 	| model |
 	model := self new.
 	ToolBuilder open: model.

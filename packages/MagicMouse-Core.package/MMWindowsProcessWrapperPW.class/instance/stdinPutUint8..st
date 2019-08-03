@@ -1,3 +1,4 @@
-as yet unclassified
+stdin
 stdinPutUint8: anInteger
+
 	self stdinPutBuffer: {anInteger}

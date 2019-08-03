@@ -1,5 +1,6 @@
-as yet unclassified
-handleHaloImageData: payload
+<- from chrome
+handlePortalImage: payload
+
 	| data form morph id info next rect |
 	self assert: [$i = (payload unsignedCharAt: 2)].
 	info := self getIdAndRectFrom: payload startAt: 3.

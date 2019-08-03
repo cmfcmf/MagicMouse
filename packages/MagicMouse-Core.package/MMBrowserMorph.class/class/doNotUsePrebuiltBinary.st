@@ -1,4 +1,4 @@
-as yet unclassified
+preferences
 doNotUsePrebuiltBinary
 
 	<preference: 'Do not use prebuilt binary'

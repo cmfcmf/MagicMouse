@@ -1,4 +1,4 @@
-as yet unclassified
+preferences
 debugNodejs
 
 	<preference: 'Debug Node.js'

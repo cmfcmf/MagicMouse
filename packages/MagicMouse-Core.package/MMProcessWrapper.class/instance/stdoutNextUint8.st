@@ -1,3 +1,4 @@
-as yet unclassified
+stdout
 stdoutNextUint8
+
 	self subclassResponsibility

@@ -1,0 +1,1 @@
+I am an abstract superclass for operating-specific implementations of spawning, wrapping and terminating a process.

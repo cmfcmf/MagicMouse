@@ -1,0 +1,1 @@
+I am a wrapper around a Unix process managed using OSProcess.

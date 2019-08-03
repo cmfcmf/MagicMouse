@@ -1,3 +1,6 @@
-as yet unclassified
+stopping
 terminate
-	self process closeStreams; sigterm
+
+	self process
+		closeStreams;
+		sigterm

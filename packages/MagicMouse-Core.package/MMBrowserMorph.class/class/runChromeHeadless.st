@@ -1,4 +1,4 @@
-as yet unclassified
+preferences
 runChromeHeadless
 
 	<preference: 'Run Chrome headless'

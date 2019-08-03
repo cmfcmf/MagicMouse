@@ -1,4 +1,4 @@
-as yet unclassified
+filenames
 filenameDict
 
 	^ Dictionary newFrom: {

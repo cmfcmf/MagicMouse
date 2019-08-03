@@ -1,4 +1,4 @@
-as yet unclassified
+instance creation
 openOn: aUrl
 
 	^ self new

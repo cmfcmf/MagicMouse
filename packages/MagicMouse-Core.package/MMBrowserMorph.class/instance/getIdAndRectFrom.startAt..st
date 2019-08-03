@@ -1,5 +1,6 @@
-as yet unclassified
+<- from chrome
 getIdAndRectFrom: payload startAt: start
+
 	| id x y w h idEnd |
 	idEnd := (payload findFirst: [:each | each = 0] startingAt: start).
 	id := (payload copyFrom: start to: idEnd - 1) asString utf8ToSqueak.

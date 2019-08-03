@@ -1,4 +1,4 @@
-as yet unclassified
+stdin
 stdinPutBuffer: aBuffer
 
 	| bytesWritten |

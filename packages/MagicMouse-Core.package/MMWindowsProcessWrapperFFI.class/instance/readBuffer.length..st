@@ -1,4 +1,4 @@
-as yet unclassified
+private
 readBuffer: aHandle length: anInteger
 
 	| bytesRead buffer |

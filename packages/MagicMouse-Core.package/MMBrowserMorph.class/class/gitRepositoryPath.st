@@ -1,4 +1,4 @@
-as yet unclassified
+preferences
 gitRepositoryPath
 
 	<preference: 'Git Repository Path'

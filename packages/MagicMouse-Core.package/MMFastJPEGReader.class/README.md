@@ -1,0 +1,1 @@
+I am a faster alternative to the JPEGReadWriter2 by allowing my users to provide me with a form to reuse for the next image.

@@ -1,3 +1,4 @@
-as yet unclassified
+instance creation
 open
+
 	^ ToolBuilder open: self new

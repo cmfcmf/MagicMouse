@@ -1,4 +1,4 @@
-as yet unclassified
+public
 fullscreen: aBoolean
 
 	aBoolean

@@ -1,4 +1,4 @@
-as yet unclassified
+downloading
 downloadIfNeededAndConfirmed
 
 	(FileDirectory default fileExists: self filenameForCurrentPlatform) ifFalse: [ 

@@ -1,4 +1,4 @@
-as yet unclassified
+public
 changeLocation: aUrl
 
 	location := aUrl.

@@ -1,4 +1,4 @@
-as yet unclassified
+domain objects
 domainObjectFieldFor: aString object: aDomainObject
 
 	| fields |

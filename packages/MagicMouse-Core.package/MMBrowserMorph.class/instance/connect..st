@@ -1,5 +1,6 @@
-as yet unclassified
+connecting
 connect: aUrl
+
 	| path arguments |
 	process := MMProcessWrapper newForOS.
 	self class debugEnabled ifTrue: [process enableDebug].
@@ -27,7 +28,7 @@ connect: aUrl
 			command := payload unsignedCharAt: 1.
 			command caseOf: {
 				[$i] -> [self updateImage: payload].
-				[$h] -> [self handleHaloData: payload].
+				[$h] -> [self handlePortal: payload].
 				[$l] -> [self locationUpdated: payload].
 				[$s] -> [self handleStructuredData: payload].
 				[$g] -> [self handleGitClone: payload].

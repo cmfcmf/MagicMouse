@@ -1,5 +1,6 @@
-as yet unclassified
+<- from chrome
 updateImage: payload
+
 	| format png form |
 	format := payload unsignedCharAt: 2.
 	format = $r ifTrue: [ | width height |

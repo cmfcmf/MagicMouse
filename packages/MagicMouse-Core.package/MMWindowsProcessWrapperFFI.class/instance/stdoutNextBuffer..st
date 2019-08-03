@@ -1,4 +1,4 @@
-as yet unclassified
+stdout
 stdoutNextBuffer: anInteger
 
 	self waitFor: anInteger at: stdoutRead.

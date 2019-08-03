@@ -1,4 +1,5 @@
-as yet unclassified
+defaults
 maxReadBufferSize
-	self flag: #fixme. "This buffer will still overflow."
+
+	self flag: #todo. "This buffer will still overflow."
 	^ 400000000

@@ -1,7 +1,7 @@
-event sending
+-> to chrome
 sendCommand: aCharacter withBuffer: aBuffer
 
-	process
+	self process
 		stdinPutUint32: (aBuffer size + 1);
 		stdinPutChar: aCharacter;
 		stdinPutBuffer: aBuffer asByteArray

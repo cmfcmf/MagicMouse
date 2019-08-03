@@ -1,4 +1,4 @@
-event sending
+-> to chrome
 sendEvent: anEventType withNumber: firstNumber andNumber: secondNumber
 
 	self sendEvent: anEventType withBuffer: ((ByteArray new: 8)

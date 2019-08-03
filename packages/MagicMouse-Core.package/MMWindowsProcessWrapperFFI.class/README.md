@@ -1,0 +1,1 @@
+I am a wrapper around a Windows process managed using FFI.

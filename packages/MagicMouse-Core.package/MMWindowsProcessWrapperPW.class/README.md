@@ -1,0 +1,1 @@
+I am a wrapper around ProcessWrapper (funny, eh?). As ProcessWrapper is rather unstable, I am not currently in use. Instead, use MMWindowsProcessWrapperFFI, a wrapper around FFI.

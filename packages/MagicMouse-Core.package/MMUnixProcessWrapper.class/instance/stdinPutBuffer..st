@@ -1,3 +1,6 @@
-as yet unclassified
+stdin
 stdinPutBuffer: aBuffer
-	aBuffer ifNotEmpty: [stdinWriter nextPutAll: aBuffer; flush]
+
+	aBuffer ifNotEmpty: [stdinWriter
+		nextPutAll: aBuffer;
+		flush]

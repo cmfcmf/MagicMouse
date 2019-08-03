@@ -1,0 +1,1 @@
+I am a helper class to download prebuilt binaries. I am called postLoad of the MagicMouse-Core package.

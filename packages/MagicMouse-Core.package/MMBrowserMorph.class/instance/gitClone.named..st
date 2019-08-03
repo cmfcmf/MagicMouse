@@ -1,4 +1,4 @@
-as yet unclassified
+<- from chrome
 gitClone: url named: name
 
 	"This code is based on SquitBrowser>>actionProjectClone"

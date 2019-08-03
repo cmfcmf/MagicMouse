@@ -1,5 +1,6 @@
-as yet unclassified
+instance creation
 openOn: aUrl
+
 	| model |
 	model := self new.
 	model locationText: aUrl.

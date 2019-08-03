@@ -1,4 +1,4 @@
-as yet unclassified
+public
 goForward
 
 	self sendEvent: #forward

@@ -1,0 +1,1 @@
+I am a custom stream that is used by MMUnixProcessWrapper to communicate with the process.

@@ -1,3 +1,4 @@
-as yet unclassified
+starting
 startCommand: command withArguments: arguments
+
 	self subclassResponsibility

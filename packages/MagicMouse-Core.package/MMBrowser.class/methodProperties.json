@@ -1,9 +1,9 @@
 {
 	"class" : {
-		"open" : "cf 5/1/2019 15:26",
-		"openOn:" : "cf 5/1/2019 17:19",
+		"open" : "cmfcmf 8/3/2019 19:12",
+		"openOn:" : "cmfcmf 8/3/2019 19:12",
 		"rickRoll" : "cmfcmf 6/30/2019 17:41",
-		"searchFor:" : "cmfcmf 6/18/2019 08:33" },
+		"searchFor:" : "cmfcmf 8/3/2019 19:12" },
 	"instance" : {
 		"addOrRemoveBookmark" : "cmfcmf 7/7/2019 11:40",
 		"bookmarkButtonState" : "cmfcmf 7/7/2019 11:38",
@@ -17,10 +17,10 @@
 		"extractedObjects" : "cmfcmf 6/11/2019 08:54",
 		"extractedObjects:" : "cmfcmf 6/11/2019 08:55",
 		"fullscreen:" : "cmfcmf 6/30/2019 17:35",
-		"getBrowserMorph" : "cmfcmf 6/11/2019 08:54",
-		"initialize" : "cmfcmf 6/11/2019 08:55",
+		"getBrowserMorph" : "cmfcmf 8/3/2019 19:13",
+		"initialize" : "cmfcmf 8/3/2019 19:13",
 		"locationText" : "cf 5/1/2019 15:47",
-		"locationText:" : "cmfcmf 7/7/2019 11:38",
+		"locationText:" : "cmfcmf 8/3/2019 19:12",
 		"searchFor:" : "cf 5/27/2019 21:35",
 		"searchText" : "cf 5/1/2019 15:47",
 		"searchText:" : "cf 5/1/2019 15:58",

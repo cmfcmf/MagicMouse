@@ -1,4 +1,5 @@
-as yet unclassified
+initialize-release
 initialize
+
 	super initialize.
 	debug := false

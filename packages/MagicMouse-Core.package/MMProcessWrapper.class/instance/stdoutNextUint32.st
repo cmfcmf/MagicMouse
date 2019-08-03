@@ -1,3 +1,4 @@
-as yet unclassified
+stdout
 stdoutNextUint32
+
 	self subclassResponsibility

@@ -1,4 +1,4 @@
-as yet unclassified
+preferences
 chromeProfilePath
 
 	<preference: 'Chrome profile path'

@@ -1,4 +1,5 @@
-submorphs-add/remove
+disconnecting
 delete
+
 	super delete.
 	self dispose

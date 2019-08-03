@@ -1,3 +1,6 @@
-as yet unclassified
+stdin
 stdinPutUint8: anInteger
-	stdinWriter nextPut: anInteger; flush
+
+	stdinWriter
+		nextPut: anInteger;
+		flush

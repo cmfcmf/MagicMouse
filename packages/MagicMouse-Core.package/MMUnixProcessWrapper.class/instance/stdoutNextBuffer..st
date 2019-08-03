@@ -1,4 +1,4 @@
-as yet unclassified
+stdout
 stdoutNextBuffer: anInteger
 
 	^ stdoutReader next: anInteger

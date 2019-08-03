@@ -1,4 +1,4 @@
-as yet unclassified
+-> to chrome
 locationUpdated: payload
 
 	location := (payload copyFrom: 2 to: payload size) asString utf8ToSqueak.

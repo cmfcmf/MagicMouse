@@ -1,3 +1,4 @@
-as yet unclassified
+stdin
 stdinPutBuffer: aByteArray
+
 	self subclassResponsibility

@@ -1,4 +1,4 @@
-as yet unclassified
+-> to chrome
 contentOfField: anId changedTo: text
 
 	| bytes content id |

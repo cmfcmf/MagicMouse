@@ -1,4 +1,4 @@
-as yet unclassified
+stdin
 stdinPutUint8: anInteger
 
 	| buffer |

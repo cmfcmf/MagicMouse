@@ -1,5 +1,6 @@
-as yet unclassified
+connecting
 assertNodeScriptExists
+
 	| path directory |
 	path := self class gitRepositoryPath.
 	directory := FileDirectory on: path.

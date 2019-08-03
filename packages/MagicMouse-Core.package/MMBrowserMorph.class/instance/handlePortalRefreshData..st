@@ -1,5 +1,6 @@
-as yet unclassified
+<- from chrome
 handlePortalRefreshData: payload
+
 	| start portalInfos |
 	self assert: [$r = (payload unsignedCharAt: 2)].
 	start := 7.

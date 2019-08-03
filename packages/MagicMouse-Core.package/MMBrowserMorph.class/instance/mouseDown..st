@@ -4,7 +4,7 @@ mouseDown: anEvent
 	| position |
 	position := (anEvent position - self position) max: 0@0.
 	(self class portalsOnRightClick and: [anEvent yellowButtonChanged]) ifTrue: [
-		self sendEvent: #halo withPoint: position
+		self sendEvent: #portal withPoint: position
 	] ifFalse: [
 		self
 			sendEvent: #mouseMove withPoint: position;

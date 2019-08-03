@@ -1,4 +1,4 @@
-as yet unclassified
+public
 goBack
 
 	self sendEvent: #back

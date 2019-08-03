@@ -1,5 +1,6 @@
-as yet unclassified
+stdout
 stdoutNextUint32
+
 	| n buffer |
 	buffer := self stdoutNextBuffer: 4.
 	n := buffer byteAt: 1.

@@ -1,4 +1,4 @@
-as yet unclassified
+starting
 startCommand: command withArguments: arguments
 	| stdout outPipe stderr errPipe stdin inPipe |
 	outPipe := OSPipe nonBlockingPipe.

@@ -1,5 +1,6 @@
-as yet unclassified
+stopping
 terminate
+
 	processInformation ifNotNil: [
 		CMFWinFFI terminateProcess: processInformation hProcess exitCode: 0.
 

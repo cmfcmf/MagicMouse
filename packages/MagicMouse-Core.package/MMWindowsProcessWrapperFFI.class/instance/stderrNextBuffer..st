@@ -1,4 +1,4 @@
-as yet unclassified
+stderr
 stderrNextBuffer: anInteger
 
 	self waitFor: anInteger at: stderrRead.

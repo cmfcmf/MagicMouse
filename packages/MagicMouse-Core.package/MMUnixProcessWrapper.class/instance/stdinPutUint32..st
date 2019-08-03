@@ -1,3 +1,6 @@
-as yet unclassified
+stdin
 stdinPutUint32: anInteger
-	stdinWriter uint32: anInteger; flush
+
+	stdinWriter
+		uint32: anInteger;
+		flush

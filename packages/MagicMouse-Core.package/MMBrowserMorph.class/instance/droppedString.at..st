@@ -1,4 +1,4 @@
-as yet unclassified
+dropping/grabbing
 droppedString: aString at: aPoint
 
 	| bytes strBuffer |
