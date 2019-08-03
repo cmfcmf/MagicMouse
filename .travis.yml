@@ -26,5 +26,5 @@ jobs:
     - yarn build
     after_script:
     - yarn global add jfrog-cli-go
-    - jfrog bt version-create --user cmfcmf --key $BINTRAY_KEY                                cmfcmf/MagicMouse/node-bridge/latest || true
-    - jfrog bt upload         --user cmfcmf --key $BINTRAY_KEY --publish --override ./build/* cmfcmf/MagicMouse/node-bridge/latest
+    - jfrog bt version-create --user cmfcmf --key $BINTRAY_KEY                                  cmfcmf/MagicMouse/node-bridge/latest || true
+    - jfrog bt upload         --user cmfcmf --key $BINTRAY_KEY --publish --override "./build/*" cmfcmf/MagicMouse/node-bridge/latest
