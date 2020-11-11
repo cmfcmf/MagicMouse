@@ -13,7 +13,7 @@ startCommand: command withArguments: arguments
 
 	process := UnixProcess 
 		forkJob: command
-		arguments: arguments
+		arguments: (arguments collect: #asString)
 		environment: nil 
 		descriptors: {stdin. stdout. stderr}.
 
