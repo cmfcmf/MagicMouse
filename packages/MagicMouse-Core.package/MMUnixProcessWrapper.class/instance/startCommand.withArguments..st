@@ -10,6 +10,7 @@ startCommand: command withArguments: arguments
 	inPipe := OSPipe blockingPipe.
 	stdin := inPipe reader.
 	stdinWriter := inPipe writer binary.
+	"self halt."
 
 	process := UnixProcess 
 		forkJob: command
@@ -20,6 +21,7 @@ startCommand: command withArguments: arguments
 	stdoutReader := outPipe reader asMMBufferedStream.
 	stdoutReader
 		setBlocking;
+		throwTimeoutError: self throwsTimeoutError;
 		binary.
 	
 	debug ifTrue: [ | stderrReader |

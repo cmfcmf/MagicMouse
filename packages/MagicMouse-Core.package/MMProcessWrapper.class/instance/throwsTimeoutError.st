@@ -1,0 +1,4 @@
+stopping
+throwsTimeoutError
+
+	^ throwsTimeoutError

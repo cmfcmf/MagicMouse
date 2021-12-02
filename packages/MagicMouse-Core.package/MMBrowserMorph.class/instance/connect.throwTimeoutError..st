@@ -1,8 +1,8 @@
 connecting
-connect: aUrl
+connect: aUrl throwTimeoutError: aBoolean
 
 	| path arguments |
-	process := MMProcessWrapper newForOS.
+	process := MMProcessWrapper newForOSThrowingTimeoutError: aBoolean.
 	self class debugEnabled ifTrue: [process enableDebug].
 	arguments := {aUrl. viewportSize x. viewportSize y.
 		self class runChromeHeadless ifTrue: ['headless'] ifFalse: ['windowed'].
@@ -23,11 +23,9 @@ connect: aUrl
 
 	imageUpdaterProcess := [
 		 [ | length command payload |
-			
 			length := process stdoutNextUint32.
 			payload := process stdoutNextBuffer: length.
 			command := payload unsignedCharAt: 1.
-			
 			command caseOf: {
 				[$i] -> [self updateImage: payload].
 				[$h] -> [self handlePortal: payload].
