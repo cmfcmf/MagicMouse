@@ -14,7 +14,7 @@
     "get-pixels": "^3.3.2",
     "patch-package": "^6.1.2",
     "postinstall-postinstall": "^2.0.0",
-    "puppeteer-core": "^1.19.0",
+    "puppeteer-core": "1.19.0",
     "smart-buffer": "^4.1.0",
     "uuid": "^3.3.2"
   },
