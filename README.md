@@ -1,7 +1,8 @@
 <img src="logo/magicmouse.png" alt="MagicMouse Logo" width="120" height="120"> MagicMouse Webbrowser
 ==================
 
-[![Build Status](https://travis-ci.com/cmfcmf/MagicMouse.svg?branch=master)](https://travis-ci.com/cmfcmf/MagicMouse)
+[![Tests](https://github.com/cmfcmf/MagicMouse/actions/workflows/tests.yml/badge.svg)](https://github.com/cmfcmf/MagicMouse/actions/workflows/tests.yml)
+[![Build Node.js Binaries](https://github.com/cmfcmf/MagicMouse/actions/workflows/build-node-binaries.yml/badge.svg)](https://github.com/cmfcmf/MagicMouse/actions/workflows/build-node-binaries.yml)
 
 MagicMouse is a webbrowser for [Squeak](https://squeak.org). It uses Chrome/Chromium under the hood to render websites and displays them as ImageMorphs right inside Squeak.
 
