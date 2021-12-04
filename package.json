@@ -5,7 +5,7 @@
     "email": "cmfcmf.flach@gmail.com"
   },
   "scripts": {
-    "build": "pkg --targets node8-win,node8-macos,node8-linux --public --output ./build/magicmouse ./run.js",
+    "build": "pkg --targets node16-win,node16-macos,node16-linux --public --output ./build/magicmouse ./run.js",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -16,9 +16,9 @@
     "postinstall-postinstall": "^2.0.0",
     "puppeteer-core": "1.19.0",
     "smart-buffer": "^4.1.0",
-    "uuid": "^3.3.2"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "pkg": "^4.4.0"
+    "pkg": "^5.5.1"
   }
 }

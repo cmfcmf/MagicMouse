@@ -4,7 +4,7 @@ const getPixels = require("get-pixels");
 const findChrome = require("chrome-finder");
 const awaitifyStream = require("awaitify-stream");
 const { getElements } = require("./getElements");
-const uuid = require("uuid/v1");
+const uuid = require("uuid").v1;
 
 Array.prototype.flat = function() {
   return this.reduce((acc, x) => acc.concat(x), []);
