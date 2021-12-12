@@ -6,14 +6,14 @@ const awaitifyStream = require("awaitify-stream");
 const { getElements } = require("./getElements");
 const uuid = require("uuid/v1");
 
-Array.prototype.flat = function() {
+Array.prototype.flat = function () {
   return this.reduce((acc, x) => acc.concat(x), []);
 };
-Array.prototype.flatMap = function(mapper) {
+Array.prototype.flatMap = function (mapper) {
   return this.map(mapper).flat();
 };
 
-SmartBuffer.prototype.writeStringPrependSize = function(string) {
+SmartBuffer.prototype.writeStringPrependSize = function (string) {
   const buffer = Buffer.from(string, "utf8");
   this.writeUInt32LE(buffer.length);
   this.writeBuffer(buffer);
@@ -29,21 +29,27 @@ const run = async () => {
   const url = process.argv[process.argv.length - 5];
   const screenSize = {
     x: parseInt(process.argv[process.argv.length - 4], 10),
-    y: parseInt(process.argv[process.argv.length - 3], 10)
+    y: parseInt(process.argv[process.argv.length - 3], 10),
   };
   const headless = process.argv[process.argv.length - 2] === "headless";
   const chromeProfilePath = process.argv[process.argv.length - 1];
 
-  const terminate = async () => {
-    console.error("Terminating...");
+  const terminate = async (id) => {
+    console.error(`Terminating tab with id ${id}.`);
     // await page.stopScreencast();
-    await browser.close();
-    process.exit();
+    await pageMapping[id].close();
+    delete pageMapping[id];
+    if (Object.keys(pageMapping) == 0) {
+      console.error("All tabs are closed now. Terminating ...");
+      process.exit();
+    }
   };
 
-  const sendCommand = buffer => {
-    const lenBuffer = new Buffer(4);
+  const sendCommand = (buffer, id) => {
+    const lenBuffer = Buffer.alloc(4);
+    const idBuffer = Buffer.alloc(4);
     lenBuffer.writeUInt32BE(buffer.length);
+    idBuffer.writeUInt32BE(id);
     process.stdout.write(lenBuffer);
     process.stdout.write(buffer);
   };
@@ -55,96 +61,104 @@ const run = async () => {
       ...(headless ? ["--headless"] : []),
       // '--start-fullscreen',
       "--force-device-scale-factor=1",
-      `--user-data-dir=${chromeProfilePath}`
+      `--user-data-dir=${chromeProfilePath}`,
     ],
-    executablePath: findChrome()
+    executablePath: findChrome(),
   });
-  const page = await browser.newPage();
-  await page.setBypassCSP(true);
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
-  );
-  await page.setViewport({ width: screenSize.x, height: screenSize.y });
+  // Mapping from page id to the page.
+  const pageMapping = {};
+  const openNewTab = async (id, screenSize, url) => {
+    const page = await browser.newPage();
+    pageMapping[id] = page;
+    await page.setBypassCSP(true);
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
+    );
+    await page.setViewport({ width: screenSize.x, height: screenSize.y });
 
-  process.on("SIGTERM", terminate);
+    process.on("SIGTERM", () => terminate(id));
 
+    /* Not needed for this pr -> will not support making it work with multi tabbing.
   const instrumentGoogleSlides = async () => {
     if (!page.url().startsWith("https://docs.google.com/presentation")) {
       return;
     }
     console.error("Instrumenting Google Slides");
-    const morphPositions = (await Promise.all(
-      page
-        .frames()
-        .filter(frame => !frame.isDetached())
-        .map(async frame =>
-          frame.evaluate(
-            ID_ATTRIBUTE =>
-              Promise.all(
-                Array.from(
-                  new Set(
-                    Array.from(
-                      document.querySelectorAll(
-                        '.punch-viewer-svgpage g[id*="paragraph"]'
-                      )
-                    ).map(element => element.parentNode)
-                  )
-                )
-                  .map(element => ({
-                    element,
-                    text: Array.from(
-                      element.querySelectorAll('g[id*="paragraph"]')
-                    )
-                      .map(paragraph =>
-                        Array.from(
-                          paragraph.querySelectorAll(
-                            ".sketchy-text-content-text text"
-                          )
+    const morphPositions = (
+      await Promise.all(
+        page
+          .frames()
+          .filter((frame) => !frame.isDetached())
+          .map(async (frame) =>
+            frame.evaluate(
+              (ID_ATTRIBUTE) =>
+                Promise.all(
+                  Array.from(
+                    new Set(
+                      Array.from(
+                        document.querySelectorAll(
+                          '.punch-viewer-svgpage g[id*="paragraph"]'
                         )
-                          .map(text => text.textContent)
-                          .join(" ")
+                      ).map((element) => element.parentNode)
+                    )
+                  )
+                    .map((element) => ({
+                      element,
+                      text: Array.from(
+                        element.querySelectorAll('g[id*="paragraph"]')
                       )
-                      .join("\r")
-                  }))
-                  .filter(tmp => tmp.text.startsWith("!"))
-                  .map(tmp => {
-                    let element = tmp.element;
-                    let path = null;
-                    do {
-                      element = element.parentNode;
-                      path = element.querySelector("path");
-                    } while (path === null);
-                    return { ...tmp, path };
-                  })
-                  .map(async tmp => {
-                    const rect = tmp.path.getBoundingClientRect();
+                        .map((paragraph) =>
+                          Array.from(
+                            paragraph.querySelectorAll(
+                              ".sketchy-text-content-text text"
+                            )
+                          )
+                            .map((text) => text.textContent)
+                            .join(" ")
+                        )
+                        .join("\r"),
+                    }))
+                    .filter((tmp) => tmp.text.startsWith("!"))
+                    .map((tmp) => {
+                      let element = tmp.element;
+                      let path = null;
+                      do {
+                        element = element.parentNode;
+                        path = element.querySelector("path");
+                      } while (path === null);
+                      return { ...tmp, path };
+                    })
+                    .map(async (tmp) => {
+                      const rect = tmp.path.getBoundingClientRect();
 
-                    let id = tmp.path.getAttribute(ID_ATTRIBUTE);
-                    if (!id) {
-                      id = await window.uuid();
-                      tmp.path.setAttribute(ID_ATTRIBUTE, id);
-                    }
+                      let id = tmp.path.getAttribute(ID_ATTRIBUTE);
+                      if (!id) {
+                        id = await window.uuid();
+                        tmp.path.setAttribute(ID_ATTRIBUTE, id);
+                      }
 
-                    return {
-                      id,
-                      type: "morph",
-                      x: rect.x,
-                      y: rect.y,
-                      w: rect.width,
-                      h: rect.height,
-                      data: tmp.text
-                    };
-                  })
-              ),
-            ID_ATTRIBUTE
+                      return {
+                        id,
+                        type: "morph",
+                        x: rect.x,
+                        y: rect.y,
+                        w: rect.width,
+                        h: rect.height,
+                        data: tmp.text,
+                      };
+                    })
+                ),
+              ID_ATTRIBUTE
+            )
           )
-        )
-    )).flat();
+      )
+    ).flat();
 
     console.error("Google Slides Morph Positions", morphPositions);
     morphPositions.forEach(sendPortalDataCommand);
-  };
+  };*/
 
+    /* Not needed for this pr -> will not support making it work with multi tabbing.
   const instrumentGitHub = async () => {
     if (!page.url().startsWith("https://github.com/")) {
       return;
@@ -179,191 +193,208 @@ const run = async () => {
       }
       normalCloneButton[0].children[0].classList.remove("btn-primary");
     });
-  };
+  };*/
 
-  const parseLDJsons = async () => {
-    const ldJsons = await page.$$eval(
-      'script[type="application/ld+json"]',
-      nodes => nodes.map(node => JSON.parse(node.innerText))
-    );
-    console.error("LD JSON", ldJsons);
-    const buf = new SmartBuffer();
-    buf.writeString("s");
-    buf.writeUInt32LE(ldJsons.length);
-    ldJsons.forEach(ldJson => {
-      const json = JSON.stringify(ldJson);
-      buf.writeStringPrependSize(json);
-    });
-    await sendCommand(buf.toBuffer());
-  };
-
-  const ignoreExecutionContextDestroyed = error => {
-    // Sometimes the frame is destroyed right after navigation, thus throwing an error
-    // when trying to evaluate a function in the frame's context. That's why we catch
-    // those errors here.
-    if (
-      !error.message.endsWith(
-        "Execution context was destroyed, most likely because of a navigation."
-      ) &&
-      !error.message.endsWith("Cannot find context with specified id")
-    ) {
-      throw error;
-    }
-  };
-
-  page.on("dialog", async dialog => {
-    // TODO: We could send the dialog contents to Squeak and ask the user what to do.
-    // For now, accept all dialogs, so that the page remains responsive.
-    console.error("Dialog!", dialog.defaultValue(), dialog.message(), dialog.type());
-    await dialog.accept();
-  });
-
-  page.on("framenavigated", async frame => {
-    await new Promise(resolve => setTimeout(() => resolve(), 50));
-    try {
-      await parseLDJsons();
-      await instrumentGoogleSlides();
-      await instrumentGitHub();
-
-      if (!frame.parentFrame()) {
-        const url = page.url();
-        console.error(`Navigating to ${url}`);
-        const buf = new SmartBuffer();
-        buf.writeString("l");
-        buf.writeString(url);
-        sendCommand(buf.toBuffer());
-      }
-    } catch (error) {
-      ignoreExecutionContextDestroyed(error);
-    }
-  });
-
-  page.on("domcontentloaded", async () => {
-    await parseLDJsons();
-    // TODO: Is this needed when we have framenavigated?
-    // await instrumentGitHub();
-    // await instrumentGoogleSlides();
-  });
-
-  const refreshTrackedElements = async () => {
-    const trackedElements = (await Promise.all(
-      page
-        .frames()
-        .filter(frame => !frame.isDetached())
-        .map(frame =>
-          frame.evaluate(getElements, "refreshInfo").catch(error => {
-            ignoreExecutionContextDestroyed(error);
-            return [];
-          })
-        )
-    )).flat();
-    // console.error(trackedElements);
-    const buf = new SmartBuffer();
-    buf.writeString("hr"); // portal refresh
-    buf.writeUInt32LE(trackedElements.length);
-    trackedElements.forEach(element =>
-      buf
-        .writeStringNT(element.id)
-        .writeInt32LE(element.x)
-        .writeInt32LE(element.y)
-        .writeInt32LE(element.w)
-        .writeInt32LE(element.h)
-    );
-    sendCommand(buf.toBuffer());
-  };
-
-  page.on("screencastframe", async frame => {
-    const screenshot = Buffer.from(frame.data, "base64");
-
-    const buf = new SmartBuffer();
-    if (IMAGE_FORMAT === "png") {
-      buf.writeString("ip");
-      buf.writeBuffer(screenshot);
-    } else if (IMAGE_FORMAT === "jpeg") {
-      buf.writeString("ij");
-      buf.writeBuffer(screenshot);
-    } else if (IMAGE_FORMAT === "raw") {
-      const pixels = await new Promise((resolve, reject) =>
-        getPixels(screenshot, "image/png", (err, pixels) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(pixels);
-          }
-        })
+    const parseLDJsons = async () => {
+      const ldJsons = await page.$$eval(
+        'script[type="application/ld+json"]',
+        (nodes) => nodes.map((node) => JSON.parse(node.innerText))
       );
-      buf.writeString("ir");
-      buf.writeUInt32LE(pixels.shape[0]);
-      buf.writeUInt32LE(pixels.shape[1]);
-      buf.writeBuffer(Buffer.from(pixels.data));
-    } else {
-      throw new Error(`Unsupported image format ${IMAGE_FORMAT}.`);
-    }
-    sendCommand(buf.toBuffer());
+      console.error(`LD JSON in tab ${id}`, ldJsons);
+      const buf = new SmartBuffer();
+      buf.writeString("s");
+      buf.writeUInt32LE(ldJsons.length);
+      ldJsons.forEach((ldJson) => {
+        const json = JSON.stringify(ldJson);
+        buf.writeStringPrependSize(json);
+      });
+      await sendCommand(buf.toBuffer(), id);
+    };
 
-    await refreshTrackedElements();
+    const ignoreExecutionContextDestroyed = (error) => {
+      // Sometimes the frame is destroyed right after navigation, thus throwing an error
+      // when trying to evaluate a function in the frame's context. That's why we catch
+      // those errors here.
+      if (
+        !error.message.endsWith(
+          "Execution context was destroyed, most likely because of a navigation."
+        ) &&
+        !error.message.endsWith("Cannot find context with specified id")
+      ) {
+        throw error;
+      }
+    };
 
-    await page.screencastFrameAck(frame.sessionId);
-    console.error(`Sent frame at ${Date.now() / 1000}`);
-  });
+    page.on("dialog", async (dialog) => {
+      // TODO: We could send the dialog contents to Squeak and ask the user what to do.
+      // For now, accept all dialogs, so that the page remains responsive.
+      console.error(
+        `Dialog for tab with id ${id}!`,
+        dialog.defaultValue(),
+        dialog.message(),
+        dialog.type()
+      );
+      await dialog.accept();
+    });
 
-  await page.exposeFunction("uuid", () => uuid());
-  await page.exposeFunction("gitClone", async (name, url) => {
-    console.error("GIT CLONE", name, url);
-    const buf = new SmartBuffer();
-    buf.writeString("g");
-    buf.writeStringPrependSize(name);
-    buf.writeString(url);
-    await sendCommand(buf.toBuffer());
-  });
+    page.on("framenavigated", async (frame) => {
+      await new Promise((resolve) => setTimeout(() => resolve(), 50));
+      try {
+        await parseLDJsons();
+        await instrumentGoogleSlides();
+        await instrumentGitHub();
 
-  const sendPortalDataCommand = data => {
-    const buf = new SmartBuffer();
-    switch (data.type) {
-      case "img":
-      case "canvas":
-        buf.writeString("hi");
-        break;
-      case "pre":
-        buf.writeString("hc");
-        break;
-      case "morph":
-        buf.writeString("hm");
-        break;
-    }
-    buf.writeStringNT(data.id);
-    buf.writeInt32LE(data.x);
-    buf.writeInt32LE(data.y);
-    buf.writeInt32LE(data.w);
-    buf.writeInt32LE(data.h);
-    switch (data.type) {
-      case "img":
-      case "canvas":
-        buf.writeBuffer(Buffer.from(data.data, "base64"));
-        break;
-      case "pre":
-      case "morph":
-        buf.writeString(data.data);
-        break;
-    }
-    sendCommand(buf.toBuffer());
+        if (!frame.parentFrame()) {
+          const url = page.url();
+          console.error(`Navigating to ${url} in tab with id ${id}`);
+          const buf = new SmartBuffer();
+          buf.writeString("l");
+          buf.writeString(url);
+          sendCommand(buf.toBuffer(), id);
+        }
+      } catch (error) {
+        ignoreExecutionContextDestroyed(error);
+      }
+    });
+
+    page.on("domcontentloaded", async () => {
+      await parseLDJsons();
+      // TODO: Is this needed when we have framenavigated?
+      // await instrumentGitHub();
+      // await instrumentGoogleSlides();
+    });
+
+    const refreshTrackedElements = async () => {
+      const trackedElements = (
+        await Promise.all(
+          page
+            .frames()
+            .filter((frame) => !frame.isDetached())
+            .map((frame) =>
+              frame.evaluate(getElements, "refreshInfo").catch((error) => {
+                ignoreExecutionContextDestroyed(error);
+                return [];
+              })
+            )
+        )
+      ).flat();
+      // console.error(trackedElements);
+      const buf = new SmartBuffer();
+      buf.writeString("hr"); // portal refresh
+      buf.writeUInt32LE(trackedElements.length);
+      trackedElements.forEach((element) =>
+        buf
+          .writeStringNT(element.id)
+          .writeInt32LE(element.x)
+          .writeInt32LE(element.y)
+          .writeInt32LE(element.w)
+          .writeInt32LE(element.h)
+      );
+      sendCommand(buf.toBuffer(), id);
+    };
+
+    page.on("screencastframe", async (frame) => {
+      const screenshot = Buffer.from(frame.data, "base64");
+
+      const buf = new SmartBuffer();
+      if (IMAGE_FORMAT === "png") {
+        buf.writeString("ip");
+        buf.writeBuffer(screenshot);
+      } else if (IMAGE_FORMAT === "jpeg") {
+        buf.writeString("ij");
+        buf.writeBuffer(screenshot);
+      } else if (IMAGE_FORMAT === "raw") {
+        const pixels = await new Promise((resolve, reject) =>
+          getPixels(screenshot, "image/png", (err, pixels) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(pixels);
+            }
+          })
+        );
+        buf.writeString("ir");
+        buf.writeUInt32LE(pixels.shape[0]);
+        buf.writeUInt32LE(pixels.shape[1]);
+        buf.writeBuffer(Buffer.from(pixels.data));
+      } else {
+        throw new Error(`Unsupported image format ${IMAGE_FORMAT}.`);
+      }
+      sendCommand(buf.toBuffer(), id);
+
+      await refreshTrackedElements();
+
+      await page.screencastFrameAck(frame.sessionId);
+      const time = new Date.now();
+      const timeString =
+        time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+      console.error(`Sent frame at ${timeString}`);
+    });
+
+    await page.exposeFunction("uuid", () => uuid());
+    await page.exposeFunction("gitClone", async (name, url) => {
+      console.error("GIT CLONE", name, url, `in tsb ${id}`);
+      const buf = new SmartBuffer();
+      buf.writeString("g");
+      buf.writeStringPrependSize(name);
+      buf.writeString(url);
+      await sendCommand(buf.toBuffer(), id);
+    });
+
+    const sendPortalDataCommand = (data) => {
+      const buf = new SmartBuffer();
+      switch (data.type) {
+        case "img":
+        case "canvas":
+          buf.writeString("hi");
+          break;
+        case "pre":
+          buf.writeString("hc");
+          break;
+        case "morph":
+          buf.writeString("hm");
+          break;
+      }
+      buf.writeStringNT(data.id);
+      buf.writeInt32LE(data.x);
+      buf.writeInt32LE(data.y);
+      buf.writeInt32LE(data.w);
+      buf.writeInt32LE(data.h);
+      switch (data.type) {
+        case "img":
+        case "canvas":
+          buf.writeBuffer(Buffer.from(data.data, "base64"));
+          break;
+        case "pre":
+        case "morph":
+          buf.writeString(data.data);
+          break;
+      }
+      sendCommand(buf.toBuffer(), id);
+    };
+
+    // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
+    console.error(`Navigating to ${url} on tab ${id}`);
+    await page.goto(url);
+
+    console.error(`Starting screencast on tab ${id} ...`);
+    await page.startScreencast({
+      format: IMAGE_FORMAT === "jpeg" ? "jpeg" : "png",
+      everyNthFrame: 1,
+    });
+    console.error(`Recording screencast on tab ${id} ...`);
   };
-
-  // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
-  console.error(`Navigating to ${url}`);
-  await page.goto(url);
-
-  console.error("Starting screencast...");
-  await page.startScreencast({
-    format: IMAGE_FORMAT === "jpeg" ? "jpeg" : "png",
-    everyNthFrame: 1
-  });
-  console.error("Recording screencast...");
-
+  openNewTab(0, screenSize, url);
+  //
+  // ------------------------------------------------ React to squeak commands loop!!!11!1!! -------------------------------------------------------
+  //
   const reader = awaitifyStream.createReader(process.stdin);
   while (true) {
     const size = (await reader.readAsync(4)).readUInt32BE();
-    console.error(`Waiting for payload of size ${size}`);
+    const tabId = (await reader.readAsync(4)).readUInt32BE();
+    console.error(
+      `Receiving Squeak command. Waiting for payload of size ${size} for tab ${tabId}.`
+    );
     const command = String.fromCharCode(
       (await reader.readAsync(1)).readUInt8()
     );
@@ -371,8 +402,18 @@ const run = async () => {
       size > 1
         ? SmartBuffer.fromBuffer(await reader.readAsync(size - 1))
         : new SmartBuffer();
-    console.error(`Received command ${command} with payload of size ${size}.`);
-
+    const commandMapping = {
+      s: "Dropped String",
+      f: "Dropped Morph",
+      t: "Update Text",
+      k: "Kill Tab",
+      l: "Set Location",
+      e: "Event",
+    };
+    console.error(
+      `Received command ${commandMapping[command]} with payload of size ${size} for tab ${tabId}.`
+    );
+    const page = pageMapping[tabId];
     switch (command) {
       case "s": {
         const x = payload.readInt32LE();
@@ -385,7 +426,7 @@ const run = async () => {
             const field = document
               .elementsFromPoint(x, y)
               .find(
-                element =>
+                (element) =>
                   ["INPUT", "TEXTAREA"].includes(element.tagName) ||
                   element.contentEditable === "true"
               );
@@ -413,7 +454,7 @@ const run = async () => {
           (x, y) =>
             document
               .elementsFromPoint(x, y)
-              .find(element => element.tagName === "FORM"),
+              .find((element) => element.tagName === "FORM"),
           x,
           y
         );
@@ -425,50 +466,57 @@ const run = async () => {
 
         const buf = new SmartBuffer();
         buf.writeString("f");
-        const inputs = (await Promise.all(
-          fields.map(async field => {
-            if (
-              (await (await field.getProperty("offsetParent")).jsonValue()) ===
-              null
-            ) {
-              return undefined;
-            }
-            let description = await (await field.getProperty(
-              "placeholder"
-            )).jsonValue();
-            if (description === undefined || description.length === 0) {
-              description = await (await field.getProperty("name")).jsonValue();
-            }
-            if (description === undefined || description.length === 0) {
-              return undefined;
-            }
-            const box = (await field.boxModel()).content;
-            console.error(box);
-            const boundingBox = {
-              x: Math.round(box[0].x),
-              y: Math.round(box[0].y),
-              width: Math.round(box[2].x - box[0].x),
-              height: Math.round(box[2].y - box[0].y)
-            };
-            console.error(boundingBox);
-            return {
-              boundingBox,
-              description: description,
-              id: await (await page.evaluateHandle(
-                async (element, ID_ATTRIBUTE) => {
-                  let id = element.getAttribute(ID_ATTRIBUTE);
-                  if (!id) {
-                    id = await window.uuid();
-                    element.setAttribute(ID_ATTRIBUTE, id);
-                  }
-                  return id;
-                },
-                field,
-                ID_ATTRIBUTE
-              )).jsonValue()
-            };
-          })
-        )).filter(input => input !== undefined);
+        const inputs = (
+          await Promise.all(
+            fields.map(async (field) => {
+              if (
+                (await (
+                  await field.getProperty("offsetParent")
+                ).jsonValue()) === null
+              ) {
+                return undefined;
+              }
+              let description = await (
+                await field.getProperty("placeholder")
+              ).jsonValue();
+              if (description === undefined || description.length === 0) {
+                description = await (
+                  await field.getProperty("name")
+                ).jsonValue();
+              }
+              if (description === undefined || description.length === 0) {
+                return undefined;
+              }
+              const box = (await field.boxModel()).content;
+              console.error(box);
+              const boundingBox = {
+                x: Math.round(box[0].x),
+                y: Math.round(box[0].y),
+                width: Math.round(box[2].x - box[0].x),
+                height: Math.round(box[2].y - box[0].y),
+              };
+              console.error(boundingBox);
+              return {
+                boundingBox,
+                description: description,
+                id: await (
+                  await page.evaluateHandle(
+                    async (element, ID_ATTRIBUTE) => {
+                      let id = element.getAttribute(ID_ATTRIBUTE);
+                      if (!id) {
+                        id = await window.uuid();
+                        element.setAttribute(ID_ATTRIBUTE, id);
+                      }
+                      return id;
+                    },
+                    field,
+                    ID_ATTRIBUTE
+                  )
+                ).jsonValue(),
+              };
+            })
+          )
+        ).filter((input) => input !== undefined);
         buf.writeInt32LE(inputs.length);
         inputs.forEach(({ boundingBox, description, id }) => {
           buf.writeInt32LE(boundingBox.x);
@@ -494,7 +542,7 @@ const run = async () => {
               element.value = text;
             } else if (element.tagName === "SELECT") {
               const option = Array.from(element.options).find(
-                option =>
+                (option) =>
                   option.innerText.toLocaleLowerCase() ===
                   text.toLocaleLowerCase()
               );
@@ -590,7 +638,7 @@ const run = async () => {
                 "<pageDown>": "PageDown",
                 "<pageUp>": "PageUp",
                 // '<euro>': '', // TODO
-                "<insert>": "Insert"
+                "<insert>": "Insert",
               };
               keyName = conversion[squeakKeyString];
               if (keyName === undefined) {
@@ -602,9 +650,11 @@ const run = async () => {
             }
             console.error("Typing", squeakKeyString, modifiers);
             try {
-              await Promise.all(modifiers.map(key => page.keyboard.down(key)));
+              await Promise.all(
+                modifiers.map((key) => page.keyboard.down(key))
+              );
               await page.keyboard.press(keyName);
-              await Promise.all(modifiers.map(key => page.keyboard.up(key)));
+              await Promise.all(modifiers.map((key) => page.keyboard.up(key)));
             } catch (error) {
               console.error(error);
             }
@@ -618,7 +668,7 @@ const run = async () => {
           case 7: {
             const y = payload.readUInt32LE();
             console.error("scroll", y);
-            page.evaluate(y => window.scrollBy(0, y == 0 ? -20 : 20), y);
+            page.evaluate((y) => window.scrollBy(0, y == 0 ? -20 : 20), y);
             break;
           }
           case 8: {
@@ -650,7 +700,7 @@ const run = async () => {
               x: element.x,
               y: element.y,
               w: element.w,
-              h: element.h
+              h: element.h,
             });
 
             sendPortalDataCommand(element);
@@ -673,4 +723,4 @@ const run = async () => {
 };
 
 // We catch all errors, log them to the console and exit.
-run().catch(error => console.error(error));
+run().catch((error) => console.error(error));
