@@ -51,6 +51,7 @@ const run = async () => {
     lenBuffer.writeUInt32BE(buffer.length);
     idBuffer.writeUInt32BE(id);
     process.stdout.write(lenBuffer);
+    process.stdout.write(idBuffer);
     process.stdout.write(buffer);
   };
 
