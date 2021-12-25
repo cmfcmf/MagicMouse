@@ -6,7 +6,11 @@
   },
   "scripts": {
     "build": "pkg --targets node8-win,node8-macos,node8-linux --public --output ./build/magicmouse ./run.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "pretty": "node_modules/.bin/prettier --write --config .prettierrc \"*.js\"",
+    "am-i-pretty": "node_modules/.bin/prettier --list-different --config .prettierrc \"*.js\"",
+    "lint": "node_modules/.bin/eslint --cache --quiet ./",
+    "lint-fix": "node_modules/.bin/eslint --cache --fix --quiet ."
   },
   "dependencies": {
     "awaitify-stream": "^1.0.2",
@@ -19,6 +23,10 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "pkg": "^4.4.0"
+    "eslint": "^8.5.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^8.3.0",
+    "pkg": "^4.4.0",
+    "prettier": "^2.5.1"
   }
 }
