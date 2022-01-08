@@ -1,4 +1,4 @@
-preferences
+instance creation
 gitRepositoryPath
 
 	<preference: 'Git Repository Path'

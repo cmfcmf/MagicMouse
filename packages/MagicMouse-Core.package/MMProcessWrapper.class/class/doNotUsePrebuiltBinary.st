@@ -1,4 +1,4 @@
-preferences
+instance creation
 doNotUsePrebuiltBinary
 
 	<preference: 'Do not use prebuilt binary'

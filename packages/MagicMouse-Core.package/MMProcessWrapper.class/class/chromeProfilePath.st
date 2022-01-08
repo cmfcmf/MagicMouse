@@ -1,4 +1,4 @@
-preferences
+instance creation
 chromeProfilePath
 
 	<preference: 'Chrome profile path'

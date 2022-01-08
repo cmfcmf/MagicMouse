@@ -1,4 +1,4 @@
-preferences
+instance creation
 debugEnabled
 
 	<preference: 'Debug to Transcript'

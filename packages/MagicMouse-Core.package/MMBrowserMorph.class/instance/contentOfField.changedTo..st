@@ -10,4 +10,4 @@ contentOfField: anId changedTo: text
 	
 	bytes signedLongAt: 5 + id byteSize put: content byteSize.
 	bytes replaceFrom: 5 + id byteSize + 4 to: 5 + id byteSize + 4 + content byteSize - 1 with: content asByteArray.
-	self sendCommand: $t withBuffer: bytes
+	MMProcessWrapper getOSDependentSingleton sendCommand: $t withBuffer: bytes for: self.

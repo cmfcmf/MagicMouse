@@ -1,4 +1,4 @@
-preferences
+instance creation
 runChromeHeadless
 
 	<preference: 'Run Chrome headless'

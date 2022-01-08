@@ -10,7 +10,6 @@ startCommand: command withArguments: arguments
 	inPipe := OSPipe blockingPipe.
 	stdin := inPipe reader.
 	stdinWriter := inPipe writer binary.
-	"self halt."
 
 	process := UnixProcess 
 		forkJob: command
