@@ -351,7 +351,6 @@ const run = async () => {
   console.error("Recording screencast...");
 
   const reader = awaitifyStream.createReader(process.stdin);
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const size = (await reader.readAsync(4)).readUInt32BE();
     console.error(`Waiting for payload of size ${size}`);
