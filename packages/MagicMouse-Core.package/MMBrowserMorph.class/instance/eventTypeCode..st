@@ -12,5 +12,6 @@ eventTypeCode: aType
 		#mouseWheel -> 7.
 		#portal -> 8.
 		#back -> 9.
-		#forward -> 10.
-	}) at:  aType ifAbsent: [self error: 'unknown event type']
+		#forward -> 10})
+		at: aType
+		ifAbsent: [self error: 'unknown event type']

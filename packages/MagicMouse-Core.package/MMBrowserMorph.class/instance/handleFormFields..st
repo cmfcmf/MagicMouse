@@ -17,29 +17,33 @@ handleFormFields: payload
 		idSize := payload unsignedLongAt: start.
 		id := payload copyFrom: start + 4 to: start + 4 + idSize - 1.
 		
-		fields add: (x@y extent: w@h).
+		fields add: (x @ y extent: w @ h).
 		descriptions add: description asString utf8ToSqueak.
 		ids add: id asString utf8ToSqueak.
 		start := start + 4 + idSize].
 	
 	"Looks like there is no form where the DomainObject was dropped."
 	fields ifEmpty: [
-		(self urlFromDomainObject: tmpDomainObject) ifNotNil: [:url | 
+		(self urlFromDomainObject: tmpDomainObject) ifNotNil: [:url |
 			self changeLocation: url.
 			^ tmpDomainObject := nil].
-		(self nameFromDomainObject: tmpDomainObject) ifNotNil: [:name | 
+		(self nameFromDomainObject: tmpDomainObject) ifNotNil: [:name |
 			self searchFor: name.
 			^ tmpDomainObject := nil]].
 	
-	self submorphs select: [:each | each isKindOf: HObjectFieldMorph] 
+	self submorphs
+		select: [:each | each isKindOf: HObjectFieldMorph]
 		thenDo: [:each | self removeMorph: each].
 	fields withIndexDo: [:boundingBox :index | | description id fieldMorph |
 		description := descriptions at: index.
 		id := ids at: index.
-		fieldMorph := (HObjectFieldMorph for: tmpDomainObject wanting: (self domainObjectFieldFor: description object: tmpDomainObject))
+		fieldMorph := (HObjectFieldMorph
+			for: tmpDomainObject
+			wanting: (self domainObjectFieldFor: description object: tmpDomainObject))
 			position: self position + boundingBox topLeft;
 			extent: boundingBox extent;
-			when: #textChanged evaluate: [:text | self contentOfField: id changedTo: text];
+			when: #textChanged
+				evaluate: [:text | self contentOfField: id changedTo: text];
 			yourself.
 		self addMorph: fieldMorph.
 		self portalMorphs at: id put: fieldMorph.

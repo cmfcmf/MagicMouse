@@ -1,3 +1,4 @@
 accessing
-reactToNodeOutputProcess: anObject
-	reactToNodeOutputProcess := anObject
+reactToNodeOutputProcess: aProcess
+
+	reactToNodeOutputProcess := aProcess

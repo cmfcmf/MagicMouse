@@ -1,6 +1,10 @@
 stdin
 closeTab: aNumber
 
-	self flag: #TODO.
-	self browserMorphMapping removeKey: aNumber ifAbsent: [Transcript showln: 'Abandoned BrowserMorph that was not connected to a tab'].
-	"TODO, also close tab in nodejs script"
+	(self browserMorphMapping includesKey: aNumber) ifFalse: [^ nil].
+	self sendCommand: $k withBuffer: '' asByteArray withId: aNumber.
+	self browserMorphMapping removeKey: aNumber ifAbsent: [].
+	Transcript showln: 'Closed Browser with tabId: ', aNumber asString.
+	self browserMorphMapping isEmpty ifTrue: [
+		Transcript showln: 'All Browser tabs should be closed. Killing Chrome ...'.
+		self class mmCleanUp]

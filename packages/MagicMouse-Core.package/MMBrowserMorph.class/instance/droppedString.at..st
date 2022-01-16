@@ -7,4 +7,7 @@ droppedString: aString at: aPoint
 	bytes
 		signedLongAt: 1 put: aPoint x;
 		signedLongAt: 5 put: aPoint y.
-	MMProcessWrapper getOSDependentSingleton sendCommand: $s withBuffer: bytes, strBuffer for: self
+	MMProcessWrapper getOSDependentSingleton
+		sendCommand: $s
+		withBuffer: bytes, strBuffer
+		for: self

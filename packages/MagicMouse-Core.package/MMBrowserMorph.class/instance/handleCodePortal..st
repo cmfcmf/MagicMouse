@@ -4,7 +4,9 @@ handleCodePortal: payload
 	| info data morph id next rect |
 	self assert: [$c = (payload unsignedCharAt: 2)].
 	info := self getIdAndRectFrom: payload startAt: 3.
-	id := info first. rect := info second. next := info third.
+	id := info first.
+	rect := info second.
+	next := info third.
 	
 	data := (payload copyFrom: next to: payload size) asString utf8ToSqueak.
 	

@@ -1,4 +1,4 @@
 accessing
 viewportSize: anObject
 
-	viewportSize := anObject.
+	viewportSize := anObject

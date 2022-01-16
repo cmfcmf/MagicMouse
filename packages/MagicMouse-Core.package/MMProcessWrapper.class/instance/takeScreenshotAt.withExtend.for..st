@@ -1,5 +1,5 @@
 stdin
-openNewTabAt: aUrl withExtend: aPoint for: aMMbrowserMorph
+takeScreenshotAt: aUrl withExtend: aPoint for: aMMbrowserMorph
 
 	| newTabId buffer |
 	newTabId := self browserMorphMapping keys
@@ -10,7 +10,7 @@ openNewTabAt: aUrl withExtend: aPoint for: aMMbrowserMorph
 	self
 		stdinPutUint32: buffer size + 1 + (2 * 4);
 		stdinPutUint32: newTabId;
-		stdinPutChar: $n;
+		stdinPutChar: $i;
 		stdinPutUint32: aPoint x;
 		stdinPutUint32: aPoint y;
 		stdinPutBuffer: buffer asByteArray.
