@@ -20,5 +20,8 @@
   },
   "devDependencies": {
     "pkg": "^5.5.1"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }

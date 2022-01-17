@@ -6,13 +6,6 @@ const awaitifyStream = require("awaitify-stream");
 const { getElements } = require("./getElements");
 const uuid = require("uuid").v1;
 
-Array.prototype.flat = function() {
-  return this.reduce((acc, x) => acc.concat(x), []);
-};
-Array.prototype.flatMap = function(mapper) {
-  return this.map(mapper).flat();
-};
-
 SmartBuffer.prototype.writeStringPrependSize = function(string) {
   const buffer = Buffer.from(string, "utf8");
   this.writeUInt32LE(buffer.length);
