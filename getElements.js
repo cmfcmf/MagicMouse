@@ -1,7 +1,7 @@
 const getElements = (fn, ...args) => {
   const ID_ATTRIBUTE = "data-magic-mouse-id";
 
-  const getIdOf = async element => {
+  const getIdOf = async (element) => {
     let id = element.getAttribute(ID_ATTRIBUTE);
     if (!id) {
       id = await window.uuid();
@@ -14,13 +14,11 @@ const getElements = (fn, ...args) => {
   // https://gist.github.com/ciaranj/7177fb342102e571db2784dc831f868b
   // which is based on this StackOverflow answer by Édouard Mercier:
   // https://stackoverflow.com/a/50916681/2560557
-  const calculateContainsWindow = element => {
+  const calculateContainsWindow = (element) => {
     const imageComputedStyle = window.getComputedStyle(element);
     const imageObjectFit = imageComputedStyle.getPropertyValue("object-fit");
     const coords = {};
-    const imagePositions = imageComputedStyle
-      .getPropertyValue("object-position")
-      .split(" ");
+    const imagePositions = imageComputedStyle.getPropertyValue("object-position").split(" ");
     let naturalWidth = element.naturalWidth;
     let naturalHeight = element.naturalHeight;
     if (element.tagName === "VIDEO") {
@@ -38,18 +36,13 @@ const getElements = (fn, ...args) => {
     if (imageObjectFit === "none") {
       coords.sourceWidth = element.clientWidth;
       coords.sourceHeight = element.clientHeight;
-      coords.sourceX =
-        (naturalWidth - element.clientWidth) * horizontalPercentage;
-      coords.sourceY =
-        (naturalHeight - element.clientHeight) * verticalPercentage;
+      coords.sourceX = (naturalWidth - element.clientWidth) * horizontalPercentage;
+      coords.sourceY = (naturalHeight - element.clientHeight) * verticalPercentage;
       coords.destinationWidthPercentage = 1;
       coords.destinationHeightPercentage = 1;
       coords.destinationXPercentage = 0;
       coords.destinationYPercentage = 0;
-    } else if (
-      imageObjectFit === "contain" ||
-      imageObjectFit === "scale-down"
-    ) {
+    } else if (imageObjectFit === "contain" || imageObjectFit === "scale-down") {
       // TODO: handle the "scale-down" appropriately, once its meaning will be clear
       coords.sourceWidth = naturalWidth;
       coords.sourceHeight = naturalHeight;
@@ -58,17 +51,13 @@ const getElements = (fn, ...args) => {
       if (naturalRatio > visibleRatio) {
         coords.destinationWidthPercentage = 1;
         coords.destinationHeightPercentage =
-          naturalHeight /
-          element.clientHeight /
-          (naturalWidth / element.clientWidth);
+          naturalHeight / element.clientHeight / (naturalWidth / element.clientWidth);
         coords.destinationXPercentage = 0;
         coords.destinationYPercentage =
           (1 - coords.destinationHeightPercentage) * verticalPercentage;
       } else {
         coords.destinationWidthPercentage =
-          naturalWidth /
-          element.clientWidth /
-          (naturalHeight / element.clientHeight);
+          naturalWidth / element.clientWidth / (naturalHeight / element.clientHeight);
         coords.destinationHeightPercentage = 1;
         coords.destinationXPercentage =
           (1 - coords.destinationWidthPercentage) * horizontalPercentage;
@@ -78,15 +67,13 @@ const getElements = (fn, ...args) => {
       if (naturalRatio > visibleRatio) {
         coords.sourceWidth = naturalHeight * visibleRatio;
         coords.sourceHeight = naturalHeight;
-        coords.sourceX =
-          (naturalWidth - coords.sourceWidth) * horizontalPercentage;
+        coords.sourceX = (naturalWidth - coords.sourceWidth) * horizontalPercentage;
         coords.sourceY = 0;
       } else {
         coords.sourceWidth = naturalWidth;
         coords.sourceHeight = naturalWidth / visibleRatio;
         coords.sourceX = 0;
-        coords.sourceY =
-          (naturalHeight - coords.sourceHeight) * verticalPercentage;
+        coords.sourceY = (naturalHeight - coords.sourceHeight) * verticalPercentage;
       }
       coords.destinationWidthPercentage = 1;
       coords.destinationHeightPercentage = 1;
@@ -103,16 +90,14 @@ const getElements = (fn, ...args) => {
       coords.destinationYPercentage = 0;
     } else {
       console.error(
-        "unexpected 'object-fit' attribute with value '" +
-          imageObjectFit +
-          "' relative to"
+        "unexpected 'object-fit' attribute with value '" + imageObjectFit + "' relative to",
       );
     }
     return coords;
   };
 
   // Convert an <img> element to a base64-encoded string.
-  const img2Base64 = img => {
+  const img2Base64 = (img) => {
     const canvas = document.createElement("canvas");
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
@@ -138,14 +123,14 @@ const getElements = (fn, ...args) => {
       y: rect.y + offsetY,
       w,
       h,
-      data: includeData ? img2Base64(img) : null
+      data: includeData ? img2Base64(img) : null,
     };
   };
 
   const extractCanvas = async (canvas, includeData = true) => {
-    const rect = img.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
 
-    const style = window.getComputedStyle(img);
+    const style = window.getComputedStyle(canvas);
     const offsetX = parseInt(style.paddingLeft, 10);
     const offsetY = parseInt(style.paddingTop, 10);
 
@@ -169,14 +154,14 @@ const getElements = (fn, ...args) => {
       y,
       w,
       h,
-      data: includeData ? canvas.toDataURL("image/png").split(",")[1] : null
+      data: includeData ? canvas.toDataURL("image/png").split(",")[1] : null,
     };
   };
 
   const extractPre = async (element, includeData = true) => {
     const viewport = {
       w: document.documentElement.clientWidth,
-      h: document.documentElement.clientHeight
+      h: document.documentElement.clientHeight,
     };
 
     const rect = element.getBoundingClientRect();
@@ -199,7 +184,7 @@ const getElements = (fn, ...args) => {
       y: rect.y,
       w: rect.width - dw,
       h: rect.height - dh,
-      data: includeData ? element.textContent : null
+      data: includeData ? element.textContent : null,
     };
   };
 
@@ -219,7 +204,7 @@ const getElements = (fn, ...args) => {
         y: rect.y,
         w: rect.width,
         h: rect.height,
-        data: null
+        data: null,
       };
     }
   };
@@ -229,12 +214,10 @@ const getElements = (fn, ...args) => {
       document
         .elementsFromPoint(x, y)
         .filter(
-          element =>
-            element.tagName === "IMG" ||
-            element.tagName === "CANVAS" ||
-            element.tagName === "PRE"
+          (element) =>
+            element.tagName === "IMG" || element.tagName === "CANVAS" || element.tagName === "PRE",
         )
-        .map(async element => extract(element))
+        .map(async (element) => extract(element)),
     );
   };
 
@@ -243,7 +226,7 @@ const getElements = (fn, ...args) => {
 
     document
       .querySelectorAll(`[${ID_ATTRIBUTE}]`)
-      .forEach(element => infos.push(extract(element, false)));
+      .forEach((element) => infos.push(extract(element, false)));
 
     return Promise.all(infos);
   };
@@ -257,5 +240,5 @@ const getElements = (fn, ...args) => {
 };
 
 module.exports = {
-  getElements
+  getElements,
 };
