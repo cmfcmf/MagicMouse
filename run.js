@@ -6,6 +6,8 @@ const awaitifyStream = require("awaitify-stream");
 const { getElements } = require("./getElements");
 const uuid = require("uuid/v1");
 
+const userAgent =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
 Array.prototype.flat = function () {
   return this.reduce((acc, x) => acc.concat(x), []);
 };
@@ -39,20 +41,69 @@ const run = async () => {
     // await page.stopScreencast();
     await pageMapping[id].close();
     delete pageMapping[id];
-    if (Object.keys(pageMapping) == 0) {
+    if (Object.keys(pageMapping).length == 0) {
       console.error("All tabs are closed now. Terminating ...");
       process.exit();
     }
   };
 
-  const sendCommand = (buffer, id) => {
+  let fixStuckPipeTimeout = null;
+  const renewFixStuckTimeout = () => {
+    fixStuckPipeTimeout = setTimeout(() => {
+      const buf = new SmartBuffer();
+      buf.writeString(".");
+      buf.writeString("Something that should be ignored.");
+      const existingPageId = Object.keys(pageMapping).reduce((id, _id) => id || _id, null);
+      if (existingPageId) {
+        sendCommand(buf.toBuffer(), existingPageId, false);
+      }
+    }, 500);
+  };
+
+  const sendCommand = (buffer, id, shouldRenewFixStuckTimeout = true) => {
+    if (fixStuckPipeTimeout != null) {
+      clearInterval(fixStuckPipeTimeout);
+    }
     const lenBuffer = Buffer.alloc(4);
     const idBuffer = Buffer.alloc(4);
     lenBuffer.writeUInt32BE(buffer.length);
     idBuffer.writeUInt32BE(id);
+    console.error(`Sending command with payload size ${buffer.length} for tab ${id}`);
     process.stdout.write(lenBuffer);
     process.stdout.write(idBuffer);
     process.stdout.write(buffer);
+    if (shouldRenewFixStuckTimeout) {
+      renewFixStuckTimeout();
+    }
+  };
+
+  const sendFrame = async (frame, isString, tabId) => {
+    const screenshot = isString ? Buffer.from(frame, "base64") : Buffer.from(frame.data, "base64");
+    const buf = new SmartBuffer();
+    if (IMAGE_FORMAT === "png") {
+      buf.writeString("ip");
+      buf.writeBuffer(screenshot);
+    } else if (IMAGE_FORMAT === "jpeg") {
+      buf.writeString("ij");
+      buf.writeBuffer(screenshot);
+    } else if (IMAGE_FORMAT === "raw") {
+      const pixels = await new Promise((resolve, reject) =>
+        getPixels(screenshot, "image/png", (err, pixels) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(pixels);
+          }
+        }),
+      );
+      buf.writeString("ir");
+      buf.writeUInt32LE(pixels.shape[0]);
+      buf.writeUInt32LE(pixels.shape[1]);
+      buf.writeBuffer(Buffer.from(pixels.data));
+    } else {
+      throw new Error(`Unsupported image format ${IMAGE_FORMAT}.`);
+    }
+    sendCommand(buf.toBuffer(), tabId);
   };
 
   const browser = await puppeteer.launch({
@@ -72,9 +123,7 @@ const run = async () => {
     const page = await browser.newPage();
     pageMapping[id] = page;
     await page.setBypassCSP(true);
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
-    );
+    await page.setUserAgent(userAgent);
     await page.setViewport({ width: screenSize.x, height: screenSize.y });
 
     process.on("SIGTERM", () => terminate(id));
@@ -196,10 +245,9 @@ const run = async () => {
     });
   };*/
 
-    const parseLDJsons = async () => {
-      const ldJsons = await page.$$eval(
-        'script[type="application/ld+json"]',
-        (nodes) => nodes.map((node) => JSON.parse(node.innerText))
+    /* const parseLDJsons = async () => {
+      const ldJsons = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
+        nodes.map((node) => JSON.parse(node.innerText)),
       );
       console.error(`LD JSON in tab ${id}`, ldJsons);
       const buf = new SmartBuffer();
@@ -210,7 +258,7 @@ const run = async () => {
         buf.writeStringPrependSize(json);
       });
       await sendCommand(buf.toBuffer(), id);
-    };
+    }; */
 
     const ignoreExecutionContextDestroyed = (error) => {
       // Sometimes the frame is destroyed right after navigation, thus throwing an error
@@ -218,7 +266,7 @@ const run = async () => {
       // those errors here.
       if (
         !error.message.endsWith(
-          "Execution context was destroyed, most likely because of a navigation."
+          "Execution context was destroyed, most likely because of a navigation.",
         ) &&
         !error.message.endsWith("Cannot find context with specified id")
       ) {
@@ -233,7 +281,7 @@ const run = async () => {
         `Dialog for tab with id ${id}!`,
         dialog.defaultValue(),
         dialog.message(),
-        dialog.type()
+        dialog.type(),
       );
       await dialog.accept();
     });
@@ -241,9 +289,9 @@ const run = async () => {
     page.on("framenavigated", async (frame) => {
       await new Promise((resolve) => setTimeout(() => resolve(), 50));
       try {
-        await parseLDJsons();
-        await instrumentGoogleSlides();
-        await instrumentGitHub();
+        // await parseLDJsons();
+        // await instrumentGoogleSlides();
+        // await instrumentGitHub();
 
         if (!frame.parentFrame()) {
           const url = page.url();
@@ -259,7 +307,7 @@ const run = async () => {
     });
 
     page.on("domcontentloaded", async () => {
-      await parseLDJsons();
+      // await parseLDJsons();
       // TODO: Is this needed when we have framenavigated?
       // await instrumentGitHub();
       // await instrumentGoogleSlides();
@@ -275,8 +323,8 @@ const run = async () => {
               frame.evaluate(getElements, "refreshInfo").catch((error) => {
                 ignoreExecutionContextDestroyed(error);
                 return [];
-              })
-            )
+              }),
+            ),
         )
       ).flat();
       // console.error(trackedElements);
@@ -289,47 +337,19 @@ const run = async () => {
           .writeInt32LE(element.x)
           .writeInt32LE(element.y)
           .writeInt32LE(element.w)
-          .writeInt32LE(element.h)
+          .writeInt32LE(element.h),
       );
       sendCommand(buf.toBuffer(), id);
     };
 
     page.on("screencastframe", async (frame) => {
-      const screenshot = Buffer.from(frame.data, "base64");
-
-      const buf = new SmartBuffer();
-      if (IMAGE_FORMAT === "png") {
-        buf.writeString("ip");
-        buf.writeBuffer(screenshot);
-      } else if (IMAGE_FORMAT === "jpeg") {
-        buf.writeString("ij");
-        buf.writeBuffer(screenshot);
-      } else if (IMAGE_FORMAT === "raw") {
-        const pixels = await new Promise((resolve, reject) =>
-          getPixels(screenshot, "image/png", (err, pixels) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(pixels);
-            }
-          })
-        );
-        buf.writeString("ir");
-        buf.writeUInt32LE(pixels.shape[0]);
-        buf.writeUInt32LE(pixels.shape[1]);
-        buf.writeBuffer(Buffer.from(pixels.data));
-      } else {
-        throw new Error(`Unsupported image format ${IMAGE_FORMAT}.`);
-      }
-      sendCommand(buf.toBuffer(), id);
-
+      await sendFrame(frame, false, id);
       await refreshTrackedElements();
 
       await page.screencastFrameAck(frame.sessionId);
-      const time = new Date.now();
-      const timeString =
-        time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
-      console.error(`Sent frame at ${timeString}`);
+      // const time = new Date();
+      // const timeString = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+      // console.error(`Sent frame to ${id}`);
     });
 
     await page.exposeFunction("uuid", () => uuid());
@@ -386,6 +406,24 @@ const run = async () => {
     console.error(`Recording screencast on tab ${id} ...`);
   };
   openNewTab(0, screenSize, url);
+
+  const takeScreenshotOf = async (id, screenSize, url) => {
+    const page = await browser.newPage();
+    pageMapping[id] = page;
+    await page.setBypassCSP(true);
+    await page.setUserAgent(userAgent);
+    await page.setViewport({ width: screenSize.x, height: screenSize.y });
+    page.on("domcontentloaded", async () => {
+      // Wait one second and then do the screenshot
+      setTimeout(() => {
+        page
+          .screenshot({ encoding: "base64", type: "jpeg" })
+          .then((frameString) => sendFrame(frameString, true, id))
+          .then(() => terminate(id));
+      }, 1000);
+    });
+    await page.goto(url);
+  };
   //
   // ------------------------------------------------ React to squeak commands loop!!!11!1!! -------------------------------------------------------
   //
@@ -394,15 +432,11 @@ const run = async () => {
     const size = (await reader.readAsync(4)).readUInt32BE();
     const tabId = (await reader.readAsync(4)).readUInt32BE();
     console.error(
-      `Receiving Squeak command. Waiting for payload of size ${size} for tab ${tabId}.`
+      `Receiving Squeak command. Waiting for payload of size ${size} for tab ${tabId}.`,
     );
-    const command = String.fromCharCode(
-      (await reader.readAsync(1)).readUInt8()
-    );
+    const command = String.fromCharCode((await reader.readAsync(1)).readUInt8());
     const payload =
-      size > 1
-        ? SmartBuffer.fromBuffer(await reader.readAsync(size - 1))
-        : new SmartBuffer();
+      size > 1 ? SmartBuffer.fromBuffer(await reader.readAsync(size - 1)) : new SmartBuffer();
     const commandMapping = {
       s: "Dropped String",
       f: "Dropped Morph",
@@ -410,11 +444,18 @@ const run = async () => {
       k: "Kill Tab",
       l: "Set Location",
       e: "Event",
+      n: "New Tab",
+      i: "Screenshot",
     };
+    const commandsCreatingNewTabs = ["n", "i"];
     console.error(
-      `Received command ${commandMapping[command]} with payload of size ${size} for tab ${tabId}.`
+      `Received command ${commandMapping[command]} with payload of size ${size} for tab ${tabId}.`,
     );
     const page = pageMapping[tabId];
+    if (page == null && !commandsCreatingNewTabs.includes(command)) {
+      console.error("Received command for non existing tab", tabId, ". Skipping ...");
+      continue;
+    }
     switch (command) {
       case "s": {
         const x = payload.readInt32LE();
@@ -429,7 +470,7 @@ const run = async () => {
               .find(
                 (element) =>
                   ["INPUT", "TEXTAREA"].includes(element.tagName) ||
-                  element.contentEditable === "true"
+                  element.contentEditable === "true",
               );
             if (!field) {
               return;
@@ -442,7 +483,7 @@ const run = async () => {
           },
           x,
           y,
-          str
+          str,
         );
         break;
       }
@@ -452,12 +493,9 @@ const run = async () => {
         console.error(`DROPPED MORPH AT ${x}@${y}`);
 
         const form = await page.evaluateHandle(
-          (x, y) =>
-            document
-              .elementsFromPoint(x, y)
-              .find((element) => element.tagName === "FORM"),
+          (x, y) => document.elementsFromPoint(x, y).find((element) => element.tagName === "FORM"),
           x,
-          y
+          y,
         );
 
         const fields =
@@ -470,20 +508,12 @@ const run = async () => {
         const inputs = (
           await Promise.all(
             fields.map(async (field) => {
-              if (
-                (await (
-                  await field.getProperty("offsetParent")
-                ).jsonValue()) === null
-              ) {
+              if ((await (await field.getProperty("offsetParent")).jsonValue()) === null) {
                 return undefined;
               }
-              let description = await (
-                await field.getProperty("placeholder")
-              ).jsonValue();
+              let description = await (await field.getProperty("placeholder")).jsonValue();
               if (description === undefined || description.length === 0) {
-                description = await (
-                  await field.getProperty("name")
-                ).jsonValue();
+                description = await (await field.getProperty("name")).jsonValue();
               }
               if (description === undefined || description.length === 0) {
                 return undefined;
@@ -511,11 +541,11 @@ const run = async () => {
                       return id;
                     },
                     field,
-                    ID_ATTRIBUTE
+                    ID_ATTRIBUTE,
                   )
                 ).jsonValue(),
               };
-            })
+            }),
           )
         ).filter((input) => input !== undefined);
         buf.writeInt32LE(inputs.length);
@@ -543,9 +573,7 @@ const run = async () => {
               element.value = text;
             } else if (element.tagName === "SELECT") {
               const option = Array.from(element.options).find(
-                (option) =>
-                  option.innerText.toLocaleLowerCase() ===
-                  text.toLocaleLowerCase()
+                (option) => option.innerText.toLocaleLowerCase() === text.toLocaleLowerCase(),
               );
               if (option) {
                 element.value = option.value;
@@ -554,12 +582,13 @@ const run = async () => {
           },
           id,
           text.trim(),
-          ID_ATTRIBUTE
+          ID_ATTRIBUTE,
         );
         break;
       case "k":
         // This command is necessary because the Squeak ProcessWrapper is unable to terminate processes.
-        await terminate();
+        console.error("Killing tab", tabId);
+        await terminate(tabId);
         break;
       case "l":
         const url = payload.readString();
@@ -651,9 +680,7 @@ const run = async () => {
             }
             console.error("Typing", squeakKeyString, modifiers);
             try {
-              await Promise.all(
-                modifiers.map((key) => page.keyboard.down(key))
-              );
+              await Promise.all(modifiers.map((key) => page.keyboard.down(key)));
               await page.keyboard.press(keyName);
               await Promise.all(modifiers.map((key) => page.keyboard.up(key)));
             } catch (error) {
@@ -663,7 +690,14 @@ const run = async () => {
           case 6: {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
-            page.setViewport({ width: x, height: y });
+            console.error("Setting page size to ", x, y);
+            page
+              .setViewport({ width: x, height: y })
+              .then(() =>
+                page
+                  .screenshot({ encoding: "base64" })
+                  .then((frameString) => sendFrame(frameString, true, tabId)),
+              );
             break;
           }
           case 7: {
@@ -680,12 +714,7 @@ const run = async () => {
 
             let elements;
             try {
-              elements = await page.evaluate(
-                getElements,
-                "extractElements",
-                x,
-                y
-              );
+              elements = await page.evaluate(getElements, "extractElements", x, y);
             } catch (error) {
               elements = [];
               console.error(error);
@@ -719,6 +748,24 @@ const run = async () => {
           }
         }
         break;
+      case "n": {
+        const x = payload.readUInt32BE();
+        const y = payload.readUInt32BE();
+        const url = payload.readString();
+        console.error(`Opened new tab at ${url} with size ${x}, ${y} and tabId ${tabId}`);
+        openNewTab(tabId, { x, y }, url);
+        break;
+      }
+      case "i": {
+        const x = payload.readUInt32BE();
+        const y = payload.readUInt32BE();
+        const url = payload.readString();
+        console.error(
+          `Opened new tab at ${url} with size ${x}, ${y} and tabId ${tabId} to take a screenshot`,
+        );
+        takeScreenshotOf(tabId, { x, y }, url);
+        break;
+      }
     }
   }
 };
