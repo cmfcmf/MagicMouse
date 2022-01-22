@@ -4,7 +4,7 @@ const getPixels = require("get-pixels");
 const findChrome = require("chrome-finder");
 const awaitifyStream = require("awaitify-stream");
 const { getElements } = require("./getElements");
-const uuid = require("uuid/v1");
+const uuid = require("uuid").v1;
 
 const userAgent =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
@@ -146,25 +146,17 @@ const run = async () => {
                   Array.from(
                     new Set(
                       Array.from(
-                        document.querySelectorAll(
-                          '.punch-viewer-svgpage g[id*="paragraph"]'
-                        )
-                      ).map((element) => element.parentNode)
-                    )
+                        document.querySelectorAll('.punch-viewer-svgpage g[id*="paragraph"]'),
+                      ).map((element) => element.parentNode),
+                    ),
                   )
                     .map((element) => ({
                       element,
-                      text: Array.from(
-                        element.querySelectorAll('g[id*="paragraph"]')
-                      )
+                      text: Array.from(element.querySelectorAll('g[id*="paragraph"]'))
                         .map((paragraph) =>
-                          Array.from(
-                            paragraph.querySelectorAll(
-                              ".sketchy-text-content-text text"
-                            )
-                          )
+                          Array.from(paragraph.querySelectorAll(".sketchy-text-content-text text"))
                             .map((text) => text.textContent)
-                            .join(" ")
+                            .join(" "),
                         )
                         .join("\r"),
                     }))
@@ -196,11 +188,11 @@ const run = async () => {
                         h: rect.height,
                         data: tmp.text,
                       };
-                    })
+                    }),
                 ),
-              ID_ATTRIBUTE
-            )
-          )
+              ID_ATTRIBUTE,
+            ),
+          ),
       )
     ).flat();
 
@@ -229,16 +221,11 @@ const run = async () => {
       name = name.substr(0, name.length - 4);
       bar[0].insertAdjacentHTML(
         "beforeEnd",
-        `<span class="btn btn-sm btn-primary ml-2" onClick="gitClone('${name}', '${cloneUrl}')">Clone to Squeak</span>`
+        `<span class="btn btn-sm btn-primary ml-2" onClick="gitClone('${name}', '${cloneUrl}')">Clone to Squeak</span>`,
       );
 
-      const normalCloneButton = document.getElementsByClassName(
-        "get-repo-select-menu"
-      );
-      if (
-        normalCloneButton.length === 0 ||
-        normalCloneButton[0].children.length === 0
-      ) {
+      const normalCloneButton = document.getElementsByClassName("get-repo-select-menu");
+      if (normalCloneButton.length === 0 || normalCloneButton[0].children.length === 0) {
         return;
       }
       normalCloneButton[0].children[0].classList.remove("btn-primary");
@@ -362,38 +349,6 @@ const run = async () => {
       await sendCommand(buf.toBuffer(), id);
     });
 
-    const sendPortalDataCommand = (data) => {
-      const buf = new SmartBuffer();
-      switch (data.type) {
-        case "img":
-        case "canvas":
-          buf.writeString("hi");
-          break;
-        case "pre":
-          buf.writeString("hc");
-          break;
-        case "morph":
-          buf.writeString("hm");
-          break;
-      }
-      buf.writeStringNT(data.id);
-      buf.writeInt32LE(data.x);
-      buf.writeInt32LE(data.y);
-      buf.writeInt32LE(data.w);
-      buf.writeInt32LE(data.h);
-      switch (data.type) {
-        case "img":
-        case "canvas":
-          buf.writeBuffer(Buffer.from(data.data, "base64"));
-          break;
-        case "pre":
-        case "morph":
-          buf.writeString(data.data);
-          break;
-      }
-      sendCommand(buf.toBuffer(), id);
-    };
-
     // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
     console.error(`Navigating to ${url} on tab ${id}`);
     await page.goto(url);
@@ -406,6 +361,38 @@ const run = async () => {
     console.error(`Recording screencast on tab ${id} ...`);
   };
   openNewTab(0, screenSize, url);
+
+  const sendPortalDataCommand = (data, id) => {
+    const buf = new SmartBuffer();
+    switch (data.type) {
+      case "img":
+      case "canvas":
+        buf.writeString("hi");
+        break;
+      case "pre":
+        buf.writeString("hc");
+        break;
+      case "morph":
+        buf.writeString("hm");
+        break;
+    }
+    buf.writeStringNT(data.id);
+    buf.writeInt32LE(data.x);
+    buf.writeInt32LE(data.y);
+    buf.writeInt32LE(data.w);
+    buf.writeInt32LE(data.h);
+    switch (data.type) {
+      case "img":
+      case "canvas":
+        buf.writeBuffer(Buffer.from(data.data, "base64"));
+        break;
+      case "pre":
+      case "morph":
+        buf.writeString(data.data);
+        break;
+    }
+    sendCommand(buf.toBuffer(), id);
+  };
 
   const takeScreenshotOf = async (id, screenSize, url) => {
     const page = await browser.newPage();
@@ -487,7 +474,7 @@ const run = async () => {
         );
         break;
       }
-      case "f":
+      case "f": {
         const x = payload.readInt32LE();
         const y = payload.readInt32LE();
         console.error(`DROPPED MORPH AT ${x}@${y}`);
@@ -559,7 +546,8 @@ const run = async () => {
         });
         sendCommand(buf.toBuffer());
         break;
-      case "t":
+      }
+      case "t": {
         const id = payload.readString(payload.readInt32LE());
         const text = payload.readString(payload.readInt32LE());
         console.error(`Update Text: ${id} ${text}`);
@@ -585,12 +573,14 @@ const run = async () => {
           ID_ATTRIBUTE,
         );
         break;
-      case "k":
+      }
+      case "k": {
         // This command is necessary because the Squeak ProcessWrapper is unable to terminate processes.
         console.error("Killing tab", tabId);
         await terminate(tabId);
         break;
-      case "l":
+      }
+      case "l": {
         const url = payload.readString();
         console.error(`Navigating to ${url}`);
         try {
@@ -599,7 +589,8 @@ const run = async () => {
           console.error(error);
         }
         break;
-      case "e":
+      }
+      case "e": {
         // TODO check read boundaries for each event type
         const eventType = payload.readUInt8();
         console.error("Received event type", eventType);
@@ -623,7 +614,7 @@ const run = async () => {
             page.mouse.move(x, y);
             break;
           }
-          case 5:
+          case 5: {
             let squeakKeyString = payload.readString(size, "ascii");
 
             let keyName;
@@ -687,6 +678,7 @@ const run = async () => {
               console.error(error);
             }
             break;
+          }
           case 6: {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
@@ -733,7 +725,7 @@ const run = async () => {
               h: element.h,
             });
 
-            sendPortalDataCommand(element);
+            sendPortalDataCommand(element, tabId);
             break;
           }
           case 9: {
@@ -748,6 +740,7 @@ const run = async () => {
           }
         }
         break;
+      }
       case "n": {
         const x = payload.readUInt32BE();
         const y = payload.readUInt32BE();

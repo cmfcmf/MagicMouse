@@ -128,9 +128,9 @@ const getElements = (fn, ...args) => {
   };
 
   const extractCanvas = async (canvas, includeData = true) => {
-    const rect = img.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
 
-    const style = window.getComputedStyle(img);
+    const style = window.getComputedStyle(canvas);
     const offsetX = parseInt(style.paddingLeft, 10);
     const offsetY = parseInt(style.paddingTop, 10);
 
