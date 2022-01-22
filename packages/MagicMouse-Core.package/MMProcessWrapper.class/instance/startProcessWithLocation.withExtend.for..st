@@ -26,10 +26,10 @@ startProcessWithLocation: aUrl withExtend: aPoint for: aMMBrowserMorph
 		[ | length tabId command payload browserInstance |
 			length := self stdoutNextUint32.
 			tabId := self stdoutNextUint32.
-			Transcript showln: 'Receiving payload with size ', length, ' for tab ', tabId, String lf.
 			payload := self stdoutNextBuffer: length.
 			command := payload unsignedCharAt: 1.
-			browserInstance := self browserMorphMapping at: tabId.
+			
+			browserInstance := self browserMorphMapping at: tabId ifAbsent:[Transcript showln: 'Received data for unregeistered browser morph. Id is ', tabId. self error: Error new.].
 			(firstImageReceivedCollection contains: [:id | id = tabId]) ifFalse: [
 				command = $i ifTrue: [
 					Transcript showln: 'Received data for tabId ', tabId, ' the first time with command ', command asString, String lf.
@@ -41,7 +41,9 @@ startProcessWithLocation: aUrl withExtend: aPoint for: aMMBrowserMorph
 				[$l] -> [browserInstance locationUpdated: payload].
 				[$s] -> [browserInstance handleStructuredData: payload].
 				[$g] -> [browserInstance handleGitClone: payload].
-				[$f] -> [browserInstance handleFormFields: payload]}] repeat] fork.
+				[$f] -> [browserInstance handleFormFields: payload].
+				[$.] -> ["This is a filling event to force a flush of the std out of the nodejs script. We ignore this."]
+			}] repeat] fork.
 	
 	self isRunning: true.
 	^ 0
