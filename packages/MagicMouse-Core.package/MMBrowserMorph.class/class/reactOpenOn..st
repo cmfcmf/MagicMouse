@@ -2,6 +2,7 @@ instance creation
 reactOpenOn: aUrl
 
 	^ self new
+		viewportSize: 300 @ 300;
 		connect: aUrl;
-		viewportSize: 250 @ 80;
+		changed;
 		yourself

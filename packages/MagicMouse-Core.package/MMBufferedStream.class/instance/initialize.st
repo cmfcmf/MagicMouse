@@ -1,6 +1,5 @@
 properties-setting
 initialize
 
-
 	super initialize.
-	self throwTimeoutError: false.
+	self throwTimeoutError: false

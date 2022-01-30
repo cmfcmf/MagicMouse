@@ -1,5 +1,4 @@
 downloading
 downloadIfNeededAndConfirmed
 
-	(FileDirectory default fileExists: self filenameForCurrentPlatform) ifFalse: [ 
-		self downloadIfConfirmed]
+	(FileDirectory default fileExists: self filenameForCurrentPlatform) ifFalse: [self downloadIfConfirmed]

@@ -1,4 +1,4 @@
 downloading
 downloadForAllPlatforms
 
-	self filenameDict valuesDo: [:each | 	self download: each]
+	self filenameDict valuesDo: [:each | self download: each]

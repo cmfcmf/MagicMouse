@@ -2,9 +2,9 @@
 	"class" : {
 		 },
 	"instance" : {
-		"binary" : "cmfcmf 8/3/2019 19:06",
-		"initialize" : "MB 12/1/2021 20:25",
-		"maxReadBufferSize" : "cmfcmf 8/3/2019 19:06",
+		"binary" : "MB 1/15/2022 13:17",
+		"initialize" : "MB 1/15/2022 13:17",
+		"maxReadBufferSize" : "MB 1/15/2022 13:17",
 		"throwTimeoutError" : "MB 12/1/2021 15:42",
-		"throwTimeoutError:" : "MB 11/27/2021 18:46",
+		"throwTimeoutError:" : "MB 1/15/2022 13:17",
 		"waitForDataReady" : "MB 1/15/2022 16:19" } }

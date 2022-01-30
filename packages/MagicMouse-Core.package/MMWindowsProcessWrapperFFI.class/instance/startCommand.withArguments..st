@@ -1,8 +1,9 @@
 starting
 startCommand: command withArguments: arguments
 
-	|  startupInfo pipe commandLine |
-	self flag: #todo. "Properly escape arguments?"
+	| startupInfo pipe commandLine |
+	self flag: #todo.
+	"Properly escape arguments?"
 	commandLine := command, ' ', ((arguments collect: [:arg | '"', arg, '"']) joinSeparatedBy: ' ').
 	
 	pipe := CMFWinFFI makePipe: false.
@@ -19,34 +20,38 @@ startCommand: command withArguments: arguments
 		stderrWrite := pipe second].
 	
 	startupInfo := CMFWinStartupInfo new.
-	startupInfo 
+	startupInfo
 		cb: CMFWinStartupInfo byteSize;
-		dwFlags: (
-			16r1 "STARTF_USESHOWWINDOW"
-			bitOr: 16r100 "STARTF_USESTDHANDLES");
-		wShowWindow: 0; "SW_HIDE"
+		dwFlags: (1 bitOr: 256);
+		wShowWindow: 0;
 		hStdInput: (stdinRead getHandle unsignedLongLongAt: 1);
 		hStdOutput: (stdoutWrite getHandle unsignedLongLongAt: 1);
 		yourself.
+	"STARTF_USESHOWWINDOW"
+	"STARTF_USESTDHANDLES"
+	"SW_HIDE"
 	debug ifTrue: [startupInfo hStdError: (stderrWrite getHandle unsignedLongLongAt: 1)].
 	
 	processInformation := CMFWinProcessInformation new.
-	CMFWinFFI noError: [CMFWinFFI createProcessApplicationName: nil 
-		commandLine: commandLine
-		processAttributes: nil 
-		threadAttributes: nil 
-		inheritHandles: true 
-		creationFlags: 0 
-		environment: nil 
-		currentDirectory: nil 
-		startupInfo: startupInfo 
-		processInformation: processInformation].
+	CMFWinFFI noError: [
+		CMFWinFFI
+			createProcessApplicationName: nil
+			commandLine: commandLine
+			processAttributes: nil
+			threadAttributes: nil
+			inheritHandles: true
+			creationFlags: 0
+			environment: nil
+			currentDirectory: nil
+			startupInfo: startupInfo
+			processInformation: processInformation].
 	
 	debug ifTrue: [
 		Transcript clear.
-		[[[ | bytesAvailable |
-			bytesAvailable := self peek: stderrRead. 
-			bytesAvailable > 0
-				ifTrue: [Transcript show: (self stderrNextBuffer: bytesAvailable) asString].
-			(Delay forMilliseconds: 200) wait.
-			true] ifError: [false]] whileTrue] fork]
+		[
+			[
+				[ | bytesAvailable |
+					bytesAvailable := self peek: stderrRead.
+					bytesAvailable > 0 ifTrue: [Transcript show: (self stderrNextBuffer: bytesAvailable) asString].
+					(Delay forMilliseconds: 200) wait.
+					true] ifError: [false]] whileTrue] fork]

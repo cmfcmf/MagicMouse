@@ -1,4 +1,4 @@
 accessing
 throwTimeoutError: anObject
 
-	throwTimeoutError := anObject.
+	throwTimeoutError := anObject
