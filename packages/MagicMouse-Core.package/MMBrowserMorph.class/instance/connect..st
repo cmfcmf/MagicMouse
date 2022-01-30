@@ -4,7 +4,10 @@ connect: aUrl
 	| path arguments |
 	process := MMProcessWrapper newForOS.
 	self class debugEnabled ifTrue: [process enableDebug].
-	arguments := {aUrl. viewportSize x. viewportSize y.
+	arguments := {
+		aUrl.
+		viewportSize x.
+		viewportSize y.
 		self class runChromeHeadless ifTrue: ['headless'] ifFalse: ['windowed'].
 		self class chromeProfilePath}.
 	self class doNotUsePrebuiltBinary
@@ -12,7 +15,7 @@ connect: aUrl
 			self assertNodeScriptExists.
 			path := self class gitRepositoryPath, FileDirectory slash, 'run.js'.
 			process
-				startNodeScript: path 
+				startNodeScript: path
 				arguments: arguments
 				nodeArguments: (self class debugNodejs ifTrue: [{'--inspect'}] ifFalse: [{}])]
 		ifFalse: [
@@ -20,9 +23,9 @@ connect: aUrl
 			process startCommand: path withArguments: arguments].
 	
 	location := aUrl.
-
+	
 	imageUpdaterProcess := [
-		 [ | length command payload |
+		[ | length command payload |
 			length := process stdoutNextUint32.
 			payload := process stdoutNextBuffer: length.
 			command := payload unsignedCharAt: 1.
@@ -32,7 +35,4 @@ connect: aUrl
 				[$l] -> [self locationUpdated: payload].
 				[$s] -> [self handleStructuredData: payload].
 				[$g] -> [self handleGitClone: payload].
-				[$f] -> [self handleFormFields: payload]
-			}
-		] repeat
-	] fork
+				[$f] -> [self handleFormFields: payload]}] repeat] fork

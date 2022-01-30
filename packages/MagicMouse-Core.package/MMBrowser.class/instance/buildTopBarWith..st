@@ -3,7 +3,7 @@ buildTopBarWith: aBuilder
 
 	^ {
 		aBuilder pluggableButtonSpec new
-			frame: ((LayoutFrame fractions: (0@0 extent: 0@1))
+			frame: ((LayoutFrame fractions: (0 @ 0 extent: 0 @ 1))
 				rightOffset: 25;
 				yourself);
 			model: self;
@@ -12,7 +12,7 @@ buildTopBarWith: aBuilder
 			label: '<';
 			yourself.
 		aBuilder pluggableButtonSpec new
-			frame: ((LayoutFrame fractions: (0@0 extent: 0@1))
+			frame: ((LayoutFrame fractions: (0 @ 0 extent: 0 @ 1))
 				leftOffset: 25;
 				rightOffset: 50;
 				yourself);
@@ -21,7 +21,7 @@ buildTopBarWith: aBuilder
 			action: [browser goForward];
 			label: '>';
 			yourself.
-		aBuilder pluggableInputFieldSpec new 
+		aBuilder pluggableInputFieldSpec new
 			model: self;
 			hardLineWrap: false;
 			softLineWrap: false;
@@ -29,13 +29,13 @@ buildTopBarWith: aBuilder
 			setText: #changeLocation:;
 			askBeforeDiscardingEdits: false;
 			help: 'Location';
-			frame: ((LayoutFrame fractions: (0@0 extent: 0.8@1))
+			frame: ((LayoutFrame fractions: (0 @ 0 extent: 0.8 @ 1))
 				leftOffset: 50;
 				rightOffset: -50;
 				yourself);
 			yourself.
 		aBuilder pluggableButtonSpec new
-			frame: ((LayoutFrame fractions: (0.8@0 corner: 0.8@1))
+			frame: ((LayoutFrame fractions: (0.8 @ 0 corner: 0.8 @ 1))
 				leftOffset: -50;
 				rightOffset: -25;
 				yourself);
@@ -46,7 +46,7 @@ buildTopBarWith: aBuilder
 			help: 'bookmark';
 			yourself.
 		aBuilder pluggableButtonSpec new
-			frame: ((LayoutFrame fractions: (0.8@0 corner: 0.8@1))
+			frame: ((LayoutFrame fractions: (0.8 @ 0 corner: 0.8 @ 1))
 				leftOffset: -25;
 				yourself);
 			model: self;
@@ -54,7 +54,7 @@ buildTopBarWith: aBuilder
 			action: [browser doRefresh];
 			help: 'refresh';
 			yourself.
-		aBuilder pluggableInputFieldSpec new 
+		aBuilder pluggableInputFieldSpec new
 			model: self;
 			hardLineWrap: false;
 			softLineWrap: false;
@@ -62,5 +62,5 @@ buildTopBarWith: aBuilder
 			setText: #searchFor:;
 			askBeforeDiscardingEdits: false;
 			help: 'Search with Google';
-			frame: (LayoutFrame fractions: (0.8@0 extent: 0.2@1));
+			frame: (LayoutFrame fractions: (0.8 @ 0 extent: 0.2 @ 1));
 			yourself}

@@ -11,7 +11,8 @@ handlePortalRefreshData: payload
 		start := portalInfo third].
 	
 	self refreshPortals: portalInfos.
-
-	portalInfos do: [:each | | id rect | id := each first. rect := each second.
-		self movePortal: id rect: rect].
 	
+	portalInfos do: [:each | | id rect |
+		id := each first.
+		rect := each second.
+		self movePortal: id rect: rect]

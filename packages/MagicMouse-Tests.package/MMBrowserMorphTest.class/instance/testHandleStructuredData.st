@@ -10,4 +10,4 @@ testHandleStructuredData
 	payload unsignedCharAt: 11 put: $}.
 	result := MMBrowserMorph new handleStructuredData: payload.
 	self assert: result size equals: 1.
-	self assert: result first size equals: 0.
+	self assert: result first size equals: 0

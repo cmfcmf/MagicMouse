@@ -1,4 +1,4 @@
 accessing
 process: anObject
 
-	process := anObject.
+	process := anObject
