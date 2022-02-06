@@ -10,5 +10,4 @@ waitForDataReady
 			ifTrue: ["todo check whether error should be throw"
 			self throwTimeoutError ifTrue: [self error: 'Did not receive a frame in 30 seconds']]
 			ifFalse: [^ self]
-			]
-	"(self dataAvailableSemaphore waitTimeoutMSecs: 30000) ifTrue: [self error: 'Did not receive a frame in 30 seconds']"
+		"(self dataAvailableSemaphore waitTimeoutMSecs: 30000) ifTrue: [self error: 'Did not receive a frame in 30 seconds']"]

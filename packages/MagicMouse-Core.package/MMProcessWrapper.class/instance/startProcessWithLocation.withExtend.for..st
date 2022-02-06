@@ -21,20 +21,16 @@ startProcessWithLocation: aUrl withExtend: aPoint for: aMMBrowserMorph
 	self startCommand: binaryToExecutePath withArguments: arguments.
 	self browserMorphMapping at: 0 put: aMMBrowserMorph.
 	
-	self reactToNodeOutputProcess: [ | firstImageReceivedCollection |
-		firstImageReceivedCollection := OrderedCollection new.
+	self reactToNodeOutputProcess: [
 		[ | length tabId command payload browserInstance |
 			length := self stdoutNextUint32.
 			tabId := self stdoutNextUint32.
 			payload := self stdoutNextBuffer: length.
 			command := payload unsignedCharAt: 1.
 			
-			browserInstance := self browserMorphMapping at: tabId ifAbsent:[Transcript showln: 'Received data for unregeistered browser morph. Id is ', tabId. self error: Error new.].
-			(firstImageReceivedCollection contains: [:id | id = tabId]) ifFalse: [
-				command = $i ifTrue: [
-					Transcript showln: 'Received data for tabId ', tabId, ' the first time with command ', command asString, String lf.
-					firstImageReceivedCollection add: tabId]].
-			command = $i ifTrue: [Transcript showln: 'Got image for tabId ', tabId, String lf].
+			browserInstance := self browserMorphMapping at: tabId ifAbsent: [
+				Transcript showln: 'Received data for unregeistered browser morph. Id is ', tabId.
+				self error: Error new].
 			command caseOf: {
 				[$i] -> [browserInstance updateImage: payload].
 				[$h] -> [browserInstance handlePortal: payload].
@@ -42,8 +38,8 @@ startProcessWithLocation: aUrl withExtend: aPoint for: aMMBrowserMorph
 				[$s] -> [browserInstance handleStructuredData: payload].
 				[$g] -> [browserInstance handleGitClone: payload].
 				[$f] -> [browserInstance handleFormFields: payload].
-				[$.] -> ["This is a filling event to force a flush of the std out of the nodejs script. We ignore this."]
-			}] repeat] fork.
+				[$.] -> ["This is a filling event to force a flush of the std out of the nodejs script. We ignore this."
+				]}] repeat] fork.
 	
 	self isRunning: true.
 	^ 0
