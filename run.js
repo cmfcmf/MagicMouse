@@ -683,19 +683,17 @@ const run = async () => {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
             console.error("Setting page size to ", x, y);
-            page
-              .setViewport({ width: x, height: y })
-              .then(() =>
-                page
-                  .screenshot({ encoding: "base64" })
-                  .then((frameString) => sendFrame(frameString, true, tabId)),
-              );
+            page.setViewport({ width: x, height: y });
             break;
           }
           case 7: {
-            const y = payload.readUInt32LE();
-            console.error("scroll", y);
-            page.evaluate((y) => window.scrollBy(0, y == 0 ? -20 : 20), y);
+            const x = payload.readInt32LE();
+            const y = payload.readInt32LE();
+            console.error("scroll", x, y);
+            page.evaluate(({ x, y }) => window.scrollBy(x, y), {
+              x,
+              y,
+            });
             break;
           }
           case 8: {
