@@ -1,5 +1,4 @@
-<img src="logo/magicmouse.png" alt="MagicMouse Logo" width="120" height="120"> MagicMouse Webbrowser
-==================
+# <img src="logo/magicmouse.png" alt="MagicMouse Logo" width="120" height="120"> MagicMouse Webbrowser
 
 [![Tests](https://github.com/cmfcmf/MagicMouse/actions/workflows/tests.yml/badge.svg)](https://github.com/cmfcmf/MagicMouse/actions/workflows/tests.yml)
 [![Build Node.js Binaries](https://github.com/cmfcmf/MagicMouse/actions/workflows/build-node-binaries.yml/badge.svg)](https://github.com/cmfcmf/MagicMouse/actions/workflows/build-node-binaries.yml)
@@ -8,9 +7,9 @@ MagicMouse is a webbrowser for [Squeak](https://squeak.org). It uses Chrome/Chro
 
 MagicMouse runs on all platforms that run Squeak and Chrome, but works best and is most tested on Windows.
 
-| | |
-|-|-|
-| ![Screenshot of Google](images/google.png) | ![Screenshot of YouTube](images/youtube.png) |
+|                                                |                                                   |
+| ---------------------------------------------- | ------------------------------------------------- |
+| ![Screenshot of Google](images/google.png)     | ![Screenshot of YouTube](images/youtube.png)      |
 | ![Screenshot of SqueakJS](images/squeakjs.png) | ![Screenshot of Lively Kernel](images/lively.png) |
 
 ## Features
@@ -23,7 +22,7 @@ MagicMouse runs on all platforms that run Squeak and Chrome, but works best and 
   - If you start your search with `!s `, your search terms are used to search https://squeak.org.
 - `CTRL+L` toggles fullscreen.
 - Dropped texts are typed into form fields.
-- *browseIt* any URL to open it in a browser.
+- _browseIt_ any URL to open it in a browser.
 - Rick roll yourself! Send `rickRoll` to your favourite class or object to get started.
 - Open browsers reconnect after resuming Squeak.
 - Create and browse bookmarks.
@@ -45,11 +44,12 @@ MagicMouse runs on all platforms that run Squeak and Chrome, but works best and 
 1. Install a recent version of Chrome or Chromium. MagicMouse uses the Chrome DevTools protocol to communicate with the browser and relies on the newish and experimental [`startScreencast`](https://chromedevtools.github.io/devtools-protocol/tot/Page#method-startScreencast) functionality. Chrome 76 works for me.
 2. Install Squeak 5.2+ (you probably have that already :D).
 3. Install MagicMouse via Metacello.
+
 ```smalltalk
 Metacello new
-	baseline: 'MagicMouse';
-	repository: 'github://cmfcmf/MagicMouse:master/packages';
-	load.
+  baseline: 'MagicMouse';
+  repository: 'github://cmfcmf/MagicMouse:master/packages';
+  load.
 ```
 
 You will be prompted to download a binary that acts as a bridge between Squeak and Chrome. See the `MMPluginDownloader` for details. Binaries are stored at [Bintray](https://bintray.com/cmfcmf/MagicMouse/node-bridge/latest?tab=files#files/).
@@ -129,3 +129,25 @@ The installation is a bit cumbersome at the moment:
    - Change the `Git Repository Path` in the MagicMouse category to match the location of the cloned repository.
    - Check the `Do not use prebuilt binary` option.
    - You probably also want to enable the `Enable debug` property to log debug output to the Transcript.
+
+## Contributing
+
+Your contribution to this project is highly appreciated. If you are contributing to this project please note that the Smalltalk / Squeak part of the project uses the [poppy-print](https://github.com/hpi-swa-teaching/poppy-print) code formatter by @tom95.
+
+To install this formatter execute
+
+```smalltalk
+Metacello new baseline: 'PoppyPrint'; repository: 'github://tom95/poppy-print/packages'; load.
+```
+
+in a workspace. Then the following can be used to format the smalltalk code:
+
+```smalltalk
+PPFormatter formatPackage: 'MagicMouse'.
+```
+
+The nodejs part of the project also has a formatter called prettier. Additionally, it is linted via eslint.
+
+To format and lint the code with automated fixing use `yarn format`.
+
+Please make sure that all your submitted code is formatted with the given formatters and that the nodejs part is linted, before merging your contribution.

@@ -5,5 +5,4 @@ handlePortal: payload
 		[$i] -> [self handlePortalImage: payload].
 		[$m] -> [self handlePortalMorph: payload].
 		[$c] -> [self handleCodePortal: payload].
-		[$r] -> [self handlePortalRefreshData: payload].
-	}.
+		[$r] -> [self handlePortalRefreshData: payload]}

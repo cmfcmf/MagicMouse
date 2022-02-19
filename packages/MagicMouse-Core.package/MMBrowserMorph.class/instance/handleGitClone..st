@@ -6,4 +6,4 @@ handleGitClone: payload
 	name := (payload copyFrom: 6 to: 6 + nameLength - 1) asString utf8ToSqueak.
 	url := (payload copyFrom: 6 + nameLength to: payload size) asString utf8ToSqueak.
 	
-	self gitClone: url named: name.
+	self gitClone: url named: name

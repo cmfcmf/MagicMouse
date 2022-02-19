@@ -1,4 +1,4 @@
 accessing
 imageUpdaterProcess: anObject
 
-	imageUpdaterProcess := anObject.
+	imageUpdaterProcess := anObject
