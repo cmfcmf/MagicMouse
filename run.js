@@ -128,7 +128,6 @@ const run = async () => {
 
     process.on("SIGTERM", () => terminate(id));
 
-    /* Not needed for this pr -> will not support making it work with multi tabbing.
   const instrumentGoogleSlides = async () => {
     if (!page.url().startsWith("https://docs.google.com/presentation")) {
       return;
@@ -197,10 +196,9 @@ const run = async () => {
     ).flat();
 
     console.error("Google Slides Morph Positions", morphPositions);
-    morphPositions.forEach(sendPortalDataCommand);
-  };*/
+    morphPositions.forEach(morphPos => sendPortalDataCommand(morphPos, id));
+  };
 
-    /* Not needed for this pr -> will not support making it work with multi tabbing.
   const instrumentGitHub = async () => {
     if (!page.url().startsWith("https://github.com/")) {
       return;
@@ -230,9 +228,9 @@ const run = async () => {
       }
       normalCloneButton[0].children[0].classList.remove("btn-primary");
     });
-  };*/
+  };
 
-    /* const parseLDJsons = async () => {
+    const parseLDJsons = async () => {
       const ldJsons = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
         nodes.map((node) => JSON.parse(node.innerText)),
       );
@@ -245,7 +243,7 @@ const run = async () => {
         buf.writeStringPrependSize(json);
       });
       await sendCommand(buf.toBuffer(), id);
-    }; */
+    }; 
 
     const ignoreExecutionContextDestroyed = (error) => {
       // Sometimes the frame is destroyed right after navigation, thus throwing an error
@@ -276,9 +274,9 @@ const run = async () => {
     page.on("framenavigated", async (frame) => {
       await new Promise((resolve) => setTimeout(() => resolve(), 50));
       try {
-        // await parseLDJsons();
-        // await instrumentGoogleSlides();
-        // await instrumentGitHub();
+        await parseLDJsons();
+        await instrumentGoogleSlides();
+        await instrumentGitHub();
 
         if (!frame.parentFrame()) {
           const url = page.url();
@@ -294,10 +292,10 @@ const run = async () => {
     });
 
     page.on("domcontentloaded", async () => {
-      // await parseLDJsons();
+      await parseLDJsons();
       // TODO: Is this needed when we have framenavigated?
-      // await instrumentGitHub();
-      // await instrumentGoogleSlides();
+      await instrumentGitHub();
+      await instrumentGoogleSlides();
     });
 
     const refreshTrackedElements = async () => {
@@ -334,9 +332,6 @@ const run = async () => {
       await refreshTrackedElements();
 
       await page.screencastFrameAck(frame.sessionId);
-      // const time = new Date();
-      // const timeString = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
-      // console.error(`Sent frame to ${id}`);
     });
 
     await page.exposeFunction("uuid", () => uuid());
@@ -412,7 +407,7 @@ const run = async () => {
     await page.goto(url);
   };
   //
-  // ------------------------------------------------ React to squeak commands loop!!!11!1!! -------------------------------------------------------
+  // ------------------------------------------------ React to squeak commands loop -------------------------------------------------------
   //
   const reader = awaitifyStream.createReader(process.stdin);
   while (true) {
