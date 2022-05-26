@@ -7,4 +7,7 @@ droppedDomainObject: aDomainObject at: aPoint
 	bytes
 		signedLongAt: 1 put: aPoint x;
 		signedLongAt: 5 put: aPoint y.
-	self sendCommand: $f withBuffer: bytes
+	MMProcessWrapper getOSDependentSingleton
+		sendCommand: $f
+		withBuffer: bytes
+		for: self

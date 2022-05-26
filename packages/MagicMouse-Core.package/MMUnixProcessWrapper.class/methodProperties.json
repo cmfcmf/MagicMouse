@@ -2,11 +2,13 @@
 	"class" : {
 		 },
 	"instance" : {
-		"startCommand:withArguments:" : "MB 1/30/2022 10:33",
-		"stdinPutBuffer:" : "MB 1/30/2022 10:33",
+		"debugLoggingProcess" : "MB 1/15/2022 13:17",
+		"debugLoggingProcess:" : "MB 1/15/2022 13:17",
+		"startCommand:withArguments:" : "MB 1/15/2022 13:17",
+		"stdinPutBuffer:" : "MB 1/15/2022 13:17",
 		"stdinPutUint32:" : "cmfcmf 8/3/2019 18:58",
 		"stdinPutUint8:" : "cmfcmf 8/3/2019 18:58",
 		"stdoutNextBuffer:" : "cf 4/24/2019 09:42",
 		"stdoutNextUint32" : "cmfcmf 8/3/2019 18:58",
 		"stdoutNextUint8" : "cmfcmf 8/3/2019 18:58",
-		"terminate" : "cmfcmf 8/3/2019 18:58" } }
+		"terminate" : "MB 1/15/2022 12:51" } }

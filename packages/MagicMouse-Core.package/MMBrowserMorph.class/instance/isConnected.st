@@ -1,4 +1,4 @@
 accessing
 isConnected
 
-	^ process notNil
+	^ self tabId notNil

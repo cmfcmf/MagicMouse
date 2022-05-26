@@ -3,11 +3,21 @@
 	"classinstvars" : [
 		 ],
 	"classvars" : [
-		 ],
+		"ChromeProfilePath",
+		"DebugEnabled",
+		"DebugNodejs",
+		"DoNotUsePrebuiltBinary",
+		"GitRepositoryPath",
+		"OSDependentProcessSingleton",
+		"RunChromeHeadless" ],
 	"commentStamp" : "cmfcmf 8/3/2019 18:59",
 	"instvars" : [
 		"process",
-		"debug" ],
+		"debug",
+		"throwsTimeoutError",
+		"isRunning",
+		"reactToNodeOutputProcess",
+		"browserMorphMapping" ],
 	"name" : "MMProcessWrapper",
 	"pools" : [
 		 ],

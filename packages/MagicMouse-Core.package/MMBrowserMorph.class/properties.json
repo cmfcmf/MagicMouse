@@ -13,13 +13,14 @@
 		"RunChromeHeadless" ],
 	"commentStamp" : "cmfcmf 8/3/2019 19:11",
 	"instvars" : [
-		"process",
+		"tabId",
 		"viewportSize",
 		"imageUpdaterProcess",
 		"portalMorphs",
 		"location",
 		"tmpDomainObject",
-		"previousOwner" ],
+		"previousOwner",
+		"performedAutoResizing" ],
 	"name" : "MMBrowserMorph",
 	"pools" : [
 		 ],

@@ -6,6 +6,8 @@ const awaitifyStream = require("awaitify-stream");
 const { getElements } = require("./getElements");
 const uuid = require("uuid").v1;
 
+const userAgent =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36";
 Array.prototype.flat = function () {
   return this.reduce((acc, x) => acc.concat(x), []);
 };
@@ -34,18 +36,74 @@ const run = async () => {
   const headless = process.argv[process.argv.length - 2] === "headless";
   const chromeProfilePath = process.argv[process.argv.length - 1];
 
-  const terminate = async () => {
-    console.error("Terminating...");
+  const terminate = async (id) => {
+    console.error(`Terminating tab with id ${id}.`);
     // await page.stopScreencast();
-    await browser.close();
-    process.exit();
+    await pageMapping[id].close();
+    delete pageMapping[id];
+    if (Object.keys(pageMapping).length == 0) {
+      console.error("All tabs are closed now. Terminating ...");
+      process.exit();
+    }
   };
 
-  const sendCommand = (buffer) => {
-    const lenBuffer = new Buffer(4);
+  let fixStuckPipeTimeout = null;
+  const renewFixStuckTimeout = () => {
+    fixStuckPipeTimeout = setTimeout(() => {
+      const buf = new SmartBuffer();
+      buf.writeString(".");
+      buf.writeString("Something that should be ignored.");
+      const existingPageId = Object.keys(pageMapping).reduce((id, _id) => id || _id, null);
+      if (existingPageId) {
+        sendCommand(buf.toBuffer(), existingPageId, false);
+      }
+    }, 500);
+  };
+
+  const sendCommand = (buffer, id, shouldRenewFixStuckTimeout = true) => {
+    if (fixStuckPipeTimeout != null) {
+      clearInterval(fixStuckPipeTimeout);
+    }
+    const lenBuffer = Buffer.alloc(4);
+    const idBuffer = Buffer.alloc(4);
     lenBuffer.writeUInt32BE(buffer.length);
+    idBuffer.writeUInt32BE(id);
+    console.error(`Sending command with payload size ${buffer.length} for tab ${id}`);
     process.stdout.write(lenBuffer);
+    process.stdout.write(idBuffer);
     process.stdout.write(buffer);
+    if (shouldRenewFixStuckTimeout) {
+      renewFixStuckTimeout();
+    }
+  };
+
+  const sendFrame = async (frame, isString, tabId) => {
+    const screenshot = isString ? Buffer.from(frame, "base64") : Buffer.from(frame.data, "base64");
+    const buf = new SmartBuffer();
+    if (IMAGE_FORMAT === "png") {
+      buf.writeString("ip");
+      buf.writeBuffer(screenshot);
+    } else if (IMAGE_FORMAT === "jpeg") {
+      buf.writeString("ij");
+      buf.writeBuffer(screenshot);
+    } else if (IMAGE_FORMAT === "raw") {
+      const pixels = await new Promise((resolve, reject) =>
+        getPixels(screenshot, "image/png", (err, pixels) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(pixels);
+          }
+        }),
+      );
+      buf.writeString("ir");
+      buf.writeUInt32LE(pixels.shape[0]);
+      buf.writeUInt32LE(pixels.shape[1]);
+      buf.writeBuffer(Buffer.from(pixels.data));
+    } else {
+      throw new Error(`Unsupported image format ${IMAGE_FORMAT}.`);
+    }
+    sendCommand(buf.toBuffer(), tabId);
   };
 
   const browser = await puppeteer.launch({
@@ -59,14 +117,16 @@ const run = async () => {
     ],
     executablePath: findChrome(),
   });
-  const page = await browser.newPage();
-  await page.setBypassCSP(true);
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
-  );
-  await page.setViewport({ width: screenSize.x, height: screenSize.y });
+  // Mapping from page id to the page.
+  const pageMapping = {};
+  const openNewTab = async (id, screenSize, url) => {
+    const page = await browser.newPage();
+    pageMapping[id] = page;
+    await page.setBypassCSP(true);
+    await page.setUserAgent(userAgent);
+    await page.setViewport({ width: screenSize.x, height: screenSize.y });
 
-  process.on("SIGTERM", terminate);
+    process.on("SIGTERM", () => terminate(id));
 
   const instrumentGoogleSlides = async () => {
     if (!page.url().startsWith("https://docs.google.com/presentation")) {
@@ -136,7 +196,7 @@ const run = async () => {
     ).flat();
 
     console.error("Google Slides Morph Positions", morphPositions);
-    morphPositions.forEach(sendPortalDataCommand);
+    morphPositions.forEach(morphPos => sendPortalDataCommand(morphPos, id));
   };
 
   const instrumentGitHub = async () => {
@@ -170,144 +230,134 @@ const run = async () => {
     });
   };
 
-  const parseLDJsons = async () => {
-    const ldJsons = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
-      nodes.map((node) => JSON.parse(node.innerText)),
-    );
-    console.error("LD JSON", ldJsons);
-    const buf = new SmartBuffer();
-    buf.writeString("s");
-    buf.writeUInt32LE(ldJsons.length);
-    ldJsons.forEach((ldJson) => {
-      const json = JSON.stringify(ldJson);
-      buf.writeStringPrependSize(json);
-    });
-    await sendCommand(buf.toBuffer());
-  };
-
-  const ignoreExecutionContextDestroyed = (error) => {
-    // Sometimes the frame is destroyed right after navigation, thus throwing an error
-    // when trying to evaluate a function in the frame's context. That's why we catch
-    // those errors here.
-    if (
-      !error.message.endsWith(
-        "Execution context was destroyed, most likely because of a navigation.",
-      ) &&
-      !error.message.endsWith("Cannot find context with specified id")
-    ) {
-      throw error;
-    }
-  };
-
-  page.on("dialog", async (dialog) => {
-    // TODO: We could send the dialog contents to Squeak and ask the user what to do.
-    // For now, accept all dialogs, so that the page remains responsive.
-    console.error("Dialog!", dialog.defaultValue(), dialog.message(), dialog.type());
-    await dialog.accept();
-  });
-
-  page.on("framenavigated", async (frame) => {
-    await new Promise((resolve) => setTimeout(() => resolve(), 50));
-    try {
-      await parseLDJsons();
-      await instrumentGoogleSlides();
-      await instrumentGitHub();
-
-      if (!frame.parentFrame()) {
-        const url = page.url();
-        console.error(`Navigating to ${url}`);
-        const buf = new SmartBuffer();
-        buf.writeString("l");
-        buf.writeString(url);
-        sendCommand(buf.toBuffer());
-      }
-    } catch (error) {
-      ignoreExecutionContextDestroyed(error);
-    }
-  });
-
-  page.on("domcontentloaded", async () => {
-    await parseLDJsons();
-    // TODO: Is this needed when we have framenavigated?
-    // await instrumentGitHub();
-    // await instrumentGoogleSlides();
-  });
-
-  const refreshTrackedElements = async () => {
-    const trackedElements = (
-      await Promise.all(
-        page
-          .frames()
-          .filter((frame) => !frame.isDetached())
-          .map((frame) =>
-            frame.evaluate(getElements, "refreshInfo").catch((error) => {
-              ignoreExecutionContextDestroyed(error);
-              return [];
-            }),
-          ),
-      )
-    ).flat();
-    // console.error(trackedElements);
-    const buf = new SmartBuffer();
-    buf.writeString("hr"); // portal refresh
-    buf.writeUInt32LE(trackedElements.length);
-    trackedElements.forEach((element) =>
-      buf
-        .writeStringNT(element.id)
-        .writeInt32LE(element.x)
-        .writeInt32LE(element.y)
-        .writeInt32LE(element.w)
-        .writeInt32LE(element.h),
-    );
-    sendCommand(buf.toBuffer());
-  };
-
-  page.on("screencastframe", async (frame) => {
-    const screenshot = Buffer.from(frame.data, "base64");
-
-    const buf = new SmartBuffer();
-    if (IMAGE_FORMAT === "png") {
-      buf.writeString("ip");
-      buf.writeBuffer(screenshot);
-    } else if (IMAGE_FORMAT === "jpeg") {
-      buf.writeString("ij");
-      buf.writeBuffer(screenshot);
-    } else if (IMAGE_FORMAT === "raw") {
-      const pixels = await new Promise((resolve, reject) =>
-        getPixels(screenshot, "image/png", (err, pixels) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(pixels);
-          }
-        }),
+    const parseLDJsons = async () => {
+      const ldJsons = await page.$$eval('script[type="application/ld+json"]', (nodes) =>
+        nodes.map((node) => JSON.parse(node.innerText)),
       );
-      buf.writeString("ir");
-      buf.writeUInt32LE(pixels.shape[0]);
-      buf.writeUInt32LE(pixels.shape[1]);
-      buf.writeBuffer(Buffer.from(pixels.data));
-    } else {
-      throw new Error(`Unsupported image format ${IMAGE_FORMAT}.`);
-    }
-    sendCommand(buf.toBuffer());
+      console.error(`LD JSON in tab ${id}`, ldJsons);
+      const buf = new SmartBuffer();
+      buf.writeString("s");
+      buf.writeUInt32LE(ldJsons.length);
+      ldJsons.forEach((ldJson) => {
+        const json = JSON.stringify(ldJson);
+        buf.writeStringPrependSize(json);
+      });
+      await sendCommand(buf.toBuffer(), id);
+    }; 
 
-    await refreshTrackedElements();
+    const ignoreExecutionContextDestroyed = (error) => {
+      // Sometimes the frame is destroyed right after navigation, thus throwing an error
+      // when trying to evaluate a function in the frame's context. That's why we catch
+      // those errors here.
+      if (
+        !error.message.endsWith(
+          "Execution context was destroyed, most likely because of a navigation.",
+        ) &&
+        !error.message.endsWith("Cannot find context with specified id")
+      ) {
+        throw error;
+      }
+    };
 
-    await page.screencastFrameAck(frame.sessionId);
-    console.error(`Sent frame at ${Date.now() / 1000}`);
-  });
+    page.on("dialog", async (dialog) => {
+      // TODO: We could send the dialog contents to Squeak and ask the user what to do.
+      // For now, accept all dialogs, so that the page remains responsive.
+      console.error(
+        `Dialog for tab with id ${id}!`,
+        dialog.defaultValue(),
+        dialog.message(),
+        dialog.type(),
+      );
+      await dialog.accept();
+    });
 
-  await page.exposeFunction("uuid", () => uuid());
-  await page.exposeFunction("gitClone", async (name, url) => {
-    console.error("GIT CLONE", name, url);
-    const buf = new SmartBuffer();
-    buf.writeString("g");
-    buf.writeStringPrependSize(name);
-    buf.writeString(url);
-    await sendCommand(buf.toBuffer());
-  });
+    page.on("framenavigated", async (frame) => {
+      await new Promise((resolve) => setTimeout(() => resolve(), 50));
+      try {
+        await parseLDJsons();
+        await instrumentGoogleSlides();
+        await instrumentGitHub();
 
-  const sendPortalDataCommand = (data) => {
+        if (!frame.parentFrame()) {
+          const url = page.url();
+          console.error(`Navigating to ${url} in tab with id ${id}`);
+          const buf = new SmartBuffer();
+          buf.writeString("l");
+          buf.writeString(url);
+          sendCommand(buf.toBuffer(), id);
+        }
+      } catch (error) {
+        ignoreExecutionContextDestroyed(error);
+      }
+    });
+
+    page.on("domcontentloaded", async () => {
+      await parseLDJsons();
+      // TODO: Is this needed when we have framenavigated?
+      await instrumentGitHub();
+      await instrumentGoogleSlides();
+    });
+
+    const refreshTrackedElements = async () => {
+      const trackedElements = (
+        await Promise.all(
+          page
+            .frames()
+            .filter((frame) => !frame.isDetached())
+            .map((frame) =>
+              frame.evaluate(getElements, "refreshInfo").catch((error) => {
+                ignoreExecutionContextDestroyed(error);
+                return [];
+              }),
+            ),
+        )
+      ).flat();
+      // console.error(trackedElements);
+      const buf = new SmartBuffer();
+      buf.writeString("hr"); // portal refresh
+      buf.writeUInt32LE(trackedElements.length);
+      trackedElements.forEach((element) =>
+        buf
+          .writeStringNT(element.id)
+          .writeInt32LE(element.x)
+          .writeInt32LE(element.y)
+          .writeInt32LE(element.w)
+          .writeInt32LE(element.h),
+      );
+      sendCommand(buf.toBuffer(), id);
+    };
+
+    page.on("screencastframe", async (frame) => {
+      await sendFrame(frame, false, id);
+      await refreshTrackedElements();
+
+      await page.screencastFrameAck(frame.sessionId);
+    });
+
+    await page.exposeFunction("uuid", () => uuid());
+    await page.exposeFunction("gitClone", async (name, url) => {
+      console.error("GIT CLONE", name, url, `in tsb ${id}`);
+      const buf = new SmartBuffer();
+      buf.writeString("g");
+      buf.writeStringPrependSize(name);
+      buf.writeString(url);
+      await sendCommand(buf.toBuffer(), id);
+    });
+
+    // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
+    console.error(`Navigating to ${url} on tab ${id}`);
+    await page.goto(url);
+
+    console.error(`Starting screencast on tab ${id} ...`);
+    await page.startScreencast({
+      format: IMAGE_FORMAT === "jpeg" ? "jpeg" : "png",
+      everyNthFrame: 1,
+    });
+    console.error(`Recording screencast on tab ${id} ...`);
+  };
+  openNewTab(0, screenSize, url);
+
+  const sendPortalDataCommand = (data, id) => {
     const buf = new SmartBuffer();
     switch (data.type) {
       case "img":
@@ -336,29 +386,58 @@ const run = async () => {
         buf.writeString(data.data);
         break;
     }
-    sendCommand(buf.toBuffer());
+    sendCommand(buf.toBuffer(), id);
   };
 
-  // TODO: This throws an error in case the page can't be reached (e.g., when you have no network connection)
-  console.error(`Navigating to ${url}`);
-  await page.goto(url);
-
-  console.error("Starting screencast...");
-  await page.startScreencast({
-    format: IMAGE_FORMAT === "jpeg" ? "jpeg" : "png",
-    everyNthFrame: 1,
-  });
-  console.error("Recording screencast...");
-
+  const takeScreenshotOf = async (id, screenSize, url) => {
+    const page = await browser.newPage();
+    pageMapping[id] = page;
+    await page.setBypassCSP(true);
+    await page.setUserAgent(userAgent);
+    await page.setViewport({ width: screenSize.x, height: screenSize.y });
+    page.on("domcontentloaded", async () => {
+      // Wait one second and then do the screenshot
+      setTimeout(() => {
+        page
+          .screenshot({ encoding: "base64", type: "jpeg" })
+          .then((frameString) => sendFrame(frameString, true, id))
+          .then(() => terminate(id));
+      }, 1000);
+    });
+    await page.goto(url);
+  };
+  //
+  // ------------------------------------------------ React to squeak commands loop -------------------------------------------------------
+  //
   const reader = awaitifyStream.createReader(process.stdin);
   while (true) {
     const size = (await reader.readAsync(4)).readUInt32BE();
-    console.error(`Waiting for payload of size ${size}`);
+    const tabId = (await reader.readAsync(4)).readUInt32BE();
+    console.error(
+      `Receiving Squeak command. Waiting for payload of size ${size} for tab ${tabId}.`,
+    );
     const command = String.fromCharCode((await reader.readAsync(1)).readUInt8());
     const payload =
       size > 1 ? SmartBuffer.fromBuffer(await reader.readAsync(size - 1)) : new SmartBuffer();
-    console.error(`Received command ${command} with payload of size ${size}.`);
-
+    const commandMapping = {
+      s: "Dropped String",
+      f: "Dropped Morph",
+      t: "Update Text",
+      k: "Kill Tab",
+      l: "Set Location",
+      e: "Event",
+      n: "New Tab",
+      i: "Screenshot",
+    };
+    const commandsCreatingNewTabs = ["n", "i"];
+    console.error(
+      `Received command ${commandMapping[command]} with payload of size ${size} for tab ${tabId}.`,
+    );
+    const page = pageMapping[tabId];
+    if (page == null && !commandsCreatingNewTabs.includes(command)) {
+      console.error("Received command for non existing tab", tabId, ". Skipping ...");
+      continue;
+    }
     switch (command) {
       case "s": {
         const x = payload.readInt32LE();
@@ -492,7 +571,8 @@ const run = async () => {
       }
       case "k": {
         // This command is necessary because the Squeak ProcessWrapper is unable to terminate processes.
-        await terminate();
+        console.error("Killing tab", tabId);
+        await terminate(tabId);
         break;
       }
       case "l": {
@@ -597,13 +677,18 @@ const run = async () => {
           case 6: {
             const x = payload.readUInt32LE();
             const y = payload.readUInt32LE();
+            console.error("Setting page size to ", x, y);
             page.setViewport({ width: x, height: y });
             break;
           }
           case 7: {
-            const y = payload.readUInt32LE();
-            console.error("scroll", y);
-            page.evaluate((y) => window.scrollBy(0, y == 0 ? -20 : 20), y);
+            const x = payload.readInt32LE();
+            const y = payload.readInt32LE();
+            console.error("scroll", x, y);
+            page.evaluate(({ x, y }) => window.scrollBy(x, y), {
+              x,
+              y,
+            });
             break;
           }
           case 8: {
@@ -633,7 +718,7 @@ const run = async () => {
               h: element.h,
             });
 
-            sendPortalDataCommand(element);
+            sendPortalDataCommand(element, tabId);
             break;
           }
           case 9: {
@@ -647,6 +732,24 @@ const run = async () => {
             break;
           }
         }
+        break;
+      }
+      case "n": {
+        const x = payload.readUInt32BE();
+        const y = payload.readUInt32BE();
+        const url = payload.readString();
+        console.error(`Opened new tab at ${url} with size ${x}, ${y} and tabId ${tabId}`);
+        openNewTab(tabId, { x, y }, url);
+        break;
+      }
+      case "i": {
+        const x = payload.readUInt32BE();
+        const y = payload.readUInt32BE();
+        const url = payload.readString();
+        console.error(
+          `Opened new tab at ${url} with size ${x}, ${y} and tabId ${tabId} to take a screenshot`,
+        );
+        takeScreenshotOf(tabId, { x, y }, url);
         break;
       }
     }

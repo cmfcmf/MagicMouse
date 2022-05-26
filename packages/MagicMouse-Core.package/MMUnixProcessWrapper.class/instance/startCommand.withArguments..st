@@ -21,14 +21,16 @@ startCommand: command withArguments: arguments
 	stdoutReader := outPipe reader asMMBufferedStream.
 	stdoutReader
 		setBlocking;
+		throwTimeoutError: self throwsTimeoutError;
 		binary.
 	
-	debug ifTrue: [ | stderrReader |
+	debug ifTrue: [ | stderrReader process |
 		Transcript clear.
 		stderrReader := errPipe reader.
 		stderrReader ascii.
-		[
+		process := [
 			[stderrReader closed] whileFalse: [
 				stderrReader next
 					ifNil: [(Delay forSeconds: 1) wait]
-					ifNotNil: [:next | Transcript show: next]]] fork]
+					ifNotNil: [:next | Transcript show: next]]] fork.
+		self debugLoggingProcess: process]

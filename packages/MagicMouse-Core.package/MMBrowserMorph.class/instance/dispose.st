@@ -1,9 +1,7 @@
 disconnecting
 dispose
 
-	process ifNotNil: [:p |
-		p terminate.
-		process := nil].
+	self closeTab.
 	imageUpdaterProcess ifNotNil: [:p |
 		p terminate.
 		imageUpdaterProcess := nil]

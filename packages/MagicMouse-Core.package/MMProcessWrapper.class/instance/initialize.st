@@ -2,4 +2,6 @@ initialize-release
 initialize
 
 	super initialize.
-	debug := false
+	debug := self class debugEnabled.
+	self isRunning: false.
+	self browserMorphMapping: Dictionary new

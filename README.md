@@ -19,7 +19,7 @@ MagicMouse runs on all platforms that run Squeak and Chrome, but works best and 
 - Right-click on images and code to transform them into `Morph`s. I call those "Portals". Because portals are cool.
 - Supercharged search bar:
   - If you type something with at least one space, your search terms are googled.
-  - If you start your search with `!s `, your search terms are used to search https://squeak.org.
+  - If you start your search with `!s`, your search terms are used to search <https://squeak.org>.
 - `CTRL+L` toggles fullscreen.
 - Dropped texts are typed into form fields.
 - _browseIt_ any URL to open it in a browser.

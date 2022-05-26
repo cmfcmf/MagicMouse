@@ -2,4 +2,7 @@ public
 changeLocation: aUrl
 
 	location := aUrl.
-	self sendCommand: $l withBuffer: aUrl asByteArray
+	MMProcessWrapper getOSDependentSingleton
+		sendCommand: $l
+		withBuffer: aUrl asByteArray
+		for: self
