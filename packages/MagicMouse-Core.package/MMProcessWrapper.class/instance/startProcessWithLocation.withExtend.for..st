@@ -6,8 +6,8 @@ startProcessWithLocation: aUrl withExtend: aPoint for: aMMBrowserMorph
 		ifTrue: [
 			runJSPath := self class gitRepositoryPath, FileDirectory slash, 'run.js'.
 			binaryToExecutePath := OSProcess isWindows
-				ifTrue: ['node']
-				ifFalse: ['/usr/local/bin/node']]
+		ifTrue: ['node']
+		ifFalse: [OSProcess isUnixMac ifTrue: ['/usr/local/bin/node'] ifFalse: ['/usr/bin/node']]]
 		ifFalse: [binaryToExecutePath := (FileDirectory default / MMPluginDownloader filenameForCurrentPlatform) fullName].
 	arguments := self class debugNodejs
 		ifTrue: [{'--inspect'. runJSPath. '--'}]
@@ -29,8 +29,9 @@ startProcessWithLocation: aUrl withExtend: aPoint for: aMMBrowserMorph
 			command := payload unsignedCharAt: 1.
 			
 			browserInstance := self browserMorphMapping at: tabId ifAbsent: [
-				Transcript showln: 'Received data for unregeistered browser morph. Id is ', tabId.
-				self error: Error new].
+				Transcript showln: 'Received data for unregeistered browser morph. Closing this tab. Id is ', tabId.
+				 self closeTab: tabId. nil].
+			browserInstance ifNotNil: [
 			command caseOf: {
 				[$i] -> [browserInstance updateImage: payload].
 				[$h] -> [browserInstance handlePortal: payload].
@@ -39,7 +40,7 @@ startProcessWithLocation: aUrl withExtend: aPoint for: aMMBrowserMorph
 				[$g] -> [browserInstance handleGitClone: payload].
 				[$f] -> [browserInstance handleFormFields: payload].
 				[$.] -> ["This is a filling event to force a flush of the std out of the nodejs script. We ignore this."
-				]}] repeat] fork.
+				]}]] repeat] fork.
 	
 	self isRunning: true.
 	^ 0

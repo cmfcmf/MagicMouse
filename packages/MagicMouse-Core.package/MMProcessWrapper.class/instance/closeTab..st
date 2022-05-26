@@ -7,4 +7,4 @@ closeTab: aNumber
 	Transcript showln: 'Closed Browser with tabId: ', aNumber asString.
 	self browserMorphMapping isEmpty ifTrue: [
 		Transcript showln: 'All Browser tabs should be closed. Killing Chrome ...'.
-		self class mmCleanUp]
+		self class renewOSDependentSingleton]
