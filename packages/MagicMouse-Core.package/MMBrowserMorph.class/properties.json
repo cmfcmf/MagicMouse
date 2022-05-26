@@ -19,8 +19,7 @@
 		"portalMorphs",
 		"location",
 		"tmpDomainObject",
-		"previousOwner",
-		"performedAutoResizing" ],
+		"previousOwner" ],
 	"name" : "MMBrowserMorph",
 	"pools" : [
 		 ],

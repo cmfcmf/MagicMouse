@@ -1,6 +1,4 @@
 events
 mouseWheel: anEvent
 
-	| naturalScrollingDelta |
-	naturalScrollingDelta := anEvent wheelDelta x @ anEvent wheelDelta y negated.
-	self sendEvent: #mouseWheel withSignedPoint: naturalScrollingDelta
+	self sendEvent: #mouseWheel withNumber: (anEvent isWheelUp ifTrue: [0] ifFalse: [1])

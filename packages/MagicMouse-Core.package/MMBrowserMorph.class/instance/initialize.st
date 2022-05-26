@@ -8,5 +8,4 @@ initialize
 	"Mark the image as opaque. Although we render PNGs, the browser should never send us an image of the webpage that includes transparency."
 	self isOpaque: true.
 	self image: self class logo.
-	self portalMorphs: Dictionary new.
-	self performedAutoResizing: true
+	self portalMorphs: Dictionary new
